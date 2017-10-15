@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     }
 
     public SelectionArrow selection;
+    public Player localPlayer;
+    public UIManager uiManager;
+    public int currentTurn = 1;
 
     private int frameControl = 5;
     private int currentFrame = 0;
@@ -25,12 +28,24 @@ public class GameManager : MonoBehaviour
         Random.InitState((int)System.Environment.TickCount);
     }
 
-    public void SetPlayerHexagon(Hexagon playerHexagon)
+    void Start()
     {
-        if (playerHexagon != null)
+        if(uiManager != null && localPlayer != null)
         {
-            this.playerHexagon = playerHexagon;
-            this.playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
+            uiManager.UpdatePlayerUI(localPlayer);
+            uiManager.SetCurrentTurnUI(currentTurn.ToString());
+        }
+    }
+
+    public void SetPlayerInitialHexLand(Hexagon hexLand)
+    {
+        if (localPlayer != null && hexLand != null)
+        {
+            playerHexagon = hexLand;
+            playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
+            playerHexagon.SetAsPlayer(localPlayer);
+
+            localPlayer.AddHexLand(playerHexagon);
 
             Vector3 p = this.playerHexagon.gameObject.transform.position;
             p.z = Camera.main.transform.position.z;
@@ -43,10 +58,12 @@ public class GameManager : MonoBehaviour
     {
         if (Input.touchCount == 2)
         {
+            selectedHexagon = null;
+            DisableSelection();
             return;
         }
 
-        if (currentFrame % frameControl == 0)
+        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Began || Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -60,6 +77,8 @@ public class GameManager : MonoBehaviour
 
                 if (selectedHexagon != null && selectedHexagon.isPlayer)
                 {
+                    EnableSelection(selectedHexagon);
+
                     if (lastHexagon == null)
                     {
                         lastHexagon = selectedHexagon;
@@ -76,33 +95,25 @@ public class GameManager : MonoBehaviour
                         lastHexagon = selectedHexagon;
                     }
                 }
+                else
+                {
+                    if (lastHexagon != null)
+                    {
+                        lastHexagon.OnRayCastExit();
+                        lastHexagon = null;
+                    }
+
+                    DisableSelection();
+                }
             }
             else if (lastHexagon != null)
             {
                 lastHexagon.OnRayCastExit();
                 lastHexagon = null;
-            }
 
-            if (currentFrame >= 60)
-            {
-                currentFrame = 0;
-            }
-        }
-
-        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Ended ||
-            Input.GetMouseButtonUp(0))
-        {
-            if(selectedHexagon != null && selectedHexagon.isPlayer)
-            {
-                EnableSelection(selectedHexagon);
-            }
-            else
-            {
                 DisableSelection();
             }
         }
-
-        currentFrame++;
     }
 
     private void EnableSelection(Hexagon targetHexagon)

@@ -94,10 +94,12 @@ public class MapGenerator : MonoBehaviour
         int playerIndex = Random.Range(0, hexagons.Count);
 
         Hexagon playerHexagon = hexagons[playerIndex];
-        playerHexagon.SetAsPlayer();
-        playerHexagon.spriteRenderer.sprite = plain;
 
-        GameManager.Instance.SetPlayerHexagon(playerHexagon);
+        if (playerHexagon != null)
+        {
+            playerHexagon.spriteRenderer.sprite = plain;
+            GameManager.Instance.SetPlayerInitialHexLand(playerHexagon);
+        }
 
         hexagons.Clear();
 	}

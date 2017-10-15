@@ -12,9 +12,9 @@ public class Hexagon : MonoBehaviour
     public float height;
     public bool isPlayer;
     public bool isEnemy;
+    public int troop = 0;
     public NeighborStructure neighborStructure;
-
-    public GameObject troopCounter;
+    public HexagonHUD hud;
 
 	void Awake ()
     {
@@ -35,16 +35,20 @@ public class Hexagon : MonoBehaviour
         spriteRenderer.color = color;
     }
 
-    public void SetAsPlayer()
+    public void SetAsPlayer(Player player)
     {
-        isPlayer = true;
-
-        if(troopCounter != null)
+        if (player != null)
         {
-            troopCounter.SetActive(true);            
-        }
+            isPlayer = true;
 
-        ChangeColor(GameConfig.player1Color);
+            if (hud != null)
+            {
+                hud.gameObject.SetActive(true);
+                hud.SetTroop(player.troop);
+            }
+
+            ChangeColor(player.playerColor);
+        }
     }
     
     public void OnRayCastHit()
