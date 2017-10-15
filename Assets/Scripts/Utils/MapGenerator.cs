@@ -7,6 +7,10 @@ public class MapGenerator : MonoBehaviour
     [Header("Prefabs")]
     public GameObject hexagonPrefab;
 
+    [Header("Sprites")]
+    public Sprite[] grounds;
+    public Sprite plain;
+
     [Header("References")]
     public Transform map;
 
@@ -14,6 +18,7 @@ public class MapGenerator : MonoBehaviour
     public int size = 7;//The value may be different in the inspector
 
     private ENeighborPosition[] listOfNeighborPosition = null;
+    private int totalGroundSprites = 0;
 
     private Dictionary<string, Hexagon> mappedHexagons = new Dictionary<string, Hexagon>();
     private List<Hexagon> hexagons = new List<Hexagon>();
@@ -22,6 +27,11 @@ public class MapGenerator : MonoBehaviour
     void Awake()
     {
         listOfNeighborPosition = (ENeighborPosition[]) System.Enum.GetValues(typeof(ENeighborPosition));
+
+        if (grounds != null)
+        {
+            totalGroundSprites = grounds.Length;
+        }
     }
    
     void Start ()
@@ -85,6 +95,7 @@ public class MapGenerator : MonoBehaviour
 
         Hexagon playerHexagon = hexagons[playerIndex];
         playerHexagon.SetAsPlayer();
+        playerHexagon.spriteRenderer.sprite = plain;
 
         GameManager.Instance.SetPlayerHexagon(playerHexagon);
 
@@ -101,6 +112,12 @@ public class MapGenerator : MonoBehaviour
         if (hexagonPrefab != null && map != null)
         {
             hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, map).GetComponent<Hexagon>();
+
+            if (grounds != null)
+            {
+                hexRef.spriteRenderer.sprite = grounds[Random.Range(0, totalGroundSprites)];
+            }
+
             hexagons.Add(hexRef);
         }
 

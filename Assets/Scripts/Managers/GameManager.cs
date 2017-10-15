@@ -10,10 +10,14 @@ public class GameManager : MonoBehaviour
         get { return instance; }
     }
 
+    public SelectionArrow selection;
+
     private int frameControl = 5;
     private int currentFrame = 0;
     private Hexagon lastHexagon;
     private Hexagon playerHexagon;
+
+    private Hexagon selectedHexagon;
 
     void Awake()
     {
@@ -52,24 +56,24 @@ public class GameManager : MonoBehaviour
 
             if (collider != null)
             {
-                Hexagon hex = collider.gameObject.GetComponent<Hexagon>();
+                selectedHexagon = collider.gameObject.GetComponent<Hexagon>();
 
-                if (hex != null)
+                if (selectedHexagon != null && selectedHexagon.isPlayer)
                 {
                     if (lastHexagon == null)
                     {
-                        lastHexagon = hex;
+                        lastHexagon = selectedHexagon;
                         lastHexagon.OnRayCastHit();
                     }
-                    else if (lastHexagon != null && lastHexagon.id != hex.id)
+                    else if (lastHexagon != null && lastHexagon.id != selectedHexagon.id)
                     {
-                        hex.OnRayCastHit();
+                        selectedHexagon.OnRayCastHit();
                         lastHexagon.OnRayCastExit();
-                        lastHexagon = hex;
+                        lastHexagon = selectedHexagon;
                     }
                     else
                     {
-                        lastHexagon = hex;
+                        lastHexagon = selectedHexagon;
                     }
                 }
             }
@@ -85,6 +89,36 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Ended ||
+            Input.GetMouseButtonUp(0))
+        {
+            if(selectedHexagon != null && selectedHexagon.isPlayer)
+            {
+                EnableSelection(selectedHexagon);
+            }
+            else
+            {
+                DisableSelection();
+            }
+        }
+
         currentFrame++;
+    }
+
+    private void EnableSelection(Hexagon targetHexagon)
+    {
+        if(selection != null && targetHexagon != null)
+        {
+            selection.transform.position = targetHexagon.transform.position;
+            selection.gameObject.SetActive(true);
+        }
+    }
+
+    private void DisableSelection()
+    { 
+        if(selection != null)
+        {
+            selection.gameObject.SetActive(false);
+        }
     }
 }

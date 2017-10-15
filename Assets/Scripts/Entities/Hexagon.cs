@@ -14,13 +14,6 @@ public class Hexagon : MonoBehaviour
     public bool isEnemy;
     public NeighborStructure neighborStructure;
 
-    private Color playerColor = new Color(0.69f, 1f, 0.69f);
-    private Color hoverPlayerColor = new Color(0.15f, 1f, 0.27f);
-    private Color environmentColor = new Color(0.69f, 0.76f, 1f);
-    private Color hoverEnvironmentColor = new Color(0.45f, 0.55f, 1f);
-    private Color enemyColor = new Color(1f, 0.69f, 0.69f);
-    private Color hoverEnemyColor = new Color(1f, 0.69f, 0.69f);
-
     public GameObject troopCounter;
 
 	void Awake ()
@@ -35,8 +28,6 @@ public class Hexagon : MonoBehaviour
         id = Guid.NewGuid().ToString().Substring(0, 7);
         width = spriteRenderer.size.x;
         height = spriteRenderer.size.y;
-
-        ChangeColor(environmentColor);
     }
         
     public void ChangeColor(Color color)
@@ -53,22 +44,22 @@ public class Hexagon : MonoBehaviour
             troopCounter.SetActive(true);            
         }
 
-        ChangeColor(playerColor);
+        ChangeColor(GameConfig.player1Color);
     }
     
     public void OnRayCastHit()
     {
         if (isPlayer)
         {
-            ChangeColor(hoverPlayerColor);
+            ChangeColor(GameConfig.player1ColorOnHover);
         }
         else if (isEnemy)
         {
-            ChangeColor(hoverEnemyColor);
+            ChangeColor(GameConfig.enemyColorOnHover);
         }
         else
         {
-            ChangeColor(hoverEnvironmentColor);
+            ChangeColor(GameConfig.openEnvironmentColorOnHover);
         }
     }
 
@@ -76,15 +67,15 @@ public class Hexagon : MonoBehaviour
     {
         if (isPlayer)
         {
-            ChangeColor(playerColor);
+            ChangeColor(GameConfig.player1Color);
         }
         else if (isEnemy)
         {
-            ChangeColor(enemyColor);
+            ChangeColor(GameConfig.enemyColor);
         }
         else
         {
-            ChangeColor(environmentColor);
+            ChangeColor(GameConfig.openEnvironmentColor);
         }
     }
 
