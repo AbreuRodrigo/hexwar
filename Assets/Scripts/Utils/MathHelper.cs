@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MathHelper : MonoBehaviour
 {
-
     public static bool HasNeighborInDirection(Hexagon origin, Vector3 direction)
     {
         Vector3 p = Camera.main.WorldToScreenPoint(direction);

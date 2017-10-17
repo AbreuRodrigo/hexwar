@@ -1,42 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    private ENeighborPosition[] listOfNeighborPosition = null;
+    private Hexagon hexRef = null;
+    
+    private int hexGenerationCount = 0;
+
     [Header("Prefabs")]
     public GameObject hexagonPrefab;
 
-    [Header("Sprites")]
-    public Sprite[] grounds;
-    public Sprite plain;
-
     [Header("References")]
-    public Transform map;
-
-    [Header("Attributes")]
-    public int size = 7;//The value may be different in the inspector
-
-    private ENeighborPosition[] listOfNeighborPosition = null;
-    private int totalGroundSprites = 0;
-
-    private Dictionary<string, Hexagon> mappedHexagons = new Dictionary<string, Hexagon>();
-    private List<Hexagon> hexagons = new List<Hexagon>();
-    private Hexagon hexRef = null;
+    public Transform mapParent;
 
     void Awake()
     {
-        listOfNeighborPosition = (ENeighborPosition[]) System.Enum.GetValues(typeof(ENeighborPosition));
-
-        if (grounds != null)
-        {
-            totalGroundSprites = grounds.Length;
-        }
+        listOfNeighborPosition = (ENeighborPosition[])System.Enum.GetValues(typeof(ENeighborPosition));
     }
-   
-    void Start ()
+
+    public void CreateMap(int size)
     {
-        if(hexagonPrefab != null)
+        if (hexagonPrefab != null && mapParent != null)
         {
             Hexagon hexBase = CreateNewHexagon(0, 0, 0);
             ENeighborPosition neighborPos;
@@ -44,13 +31,11 @@ public class MapGenerator : MonoBehaviour
             bool hasNeighborInDirection = false;
 
             int index = 0;
-
-            float time = Time.time;
-
+            
             while (index < size-1)
             {
                 neighborPos = RandomizeNeighborPosition();
-                hexBase = RandomizeHexagon();
+                hexBase = MapManager.Instance.RandomizeHexagon();
                 direction = GetNeighborPositionByDirection(hexBase, neighborPos);
                 hasNeighborInDirection = MathHelper.HasNeighborInDirection(hexBase, direction);
                 
@@ -81,27 +66,24 @@ public class MapGenerator : MonoBehaviour
                     index++;
                 }
             }
-
-            Debug.Log(Time.time - time);
         }
         
-        foreach(Hexagon h in hexagons)
+        foreach(var h in MapManager.Instance.GetMappedHexagons())
         {
-            mappedHexagons.Add(h.id, h);
-            h.DetectNeighbors();
+            h.Value.DetectNeighbors();
         }
-
-        int playerIndex = Random.Range(0, hexagons.Count);
-
-        Hexagon playerHexagon = hexagons[playerIndex];
+        
+        Hexagon playerHexagon = MapManager.Instance.RandomizeHexagon();
 
         if (playerHexagon != null)
         {
-            playerHexagon.spriteRenderer.sprite = plain;
-            GameManager.Instance.SetPlayerInitialHexLand(playerHexagon);
-        }
+            playerHexagon.ChangeToVisibleState();
+            playerHexagon.landSpriteRenderer.sprite = MapManager.Instance.plainSprite;
 
-        hexagons.Clear();
+            GameManager.Instance.SetPlayerInitialHexLand(playerHexagon);
+
+            MapManager.Instance.RevealNeighbors(playerHexagon);
+        }
 	}
 
     private Hexagon CreateNewHexagon(Vector3 pos)
@@ -111,16 +93,15 @@ public class MapGenerator : MonoBehaviour
 
     private Hexagon CreateNewHexagon(float x, float y, float z)
     {
-        if (hexagonPrefab != null && map != null)
+        if (hexagonPrefab != null && mapParent != null)
         {
-            hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, map).GetComponent<Hexagon>();
+            hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, mapParent).GetComponent<Hexagon>();
+            hexRef.index = hexGenerationCount;
+            hexRef.SetLandSprite(MapManager.Instance.GetRandomLandSprite());
 
-            if (grounds != null)
-            {
-                hexRef.spriteRenderer.sprite = grounds[Random.Range(0, totalGroundSprites)];
-            }
+            MapManager.Instance.AddHexagon(hexGenerationCount, hexRef);            
 
-            hexagons.Add(hexRef);
+            hexGenerationCount++;
         }
 
         return hexRef;
@@ -160,14 +141,6 @@ public class MapGenerator : MonoBehaviour
     {
         int rand = Random.Range(0, listOfNeighborPosition.Length);
         return listOfNeighborPosition[rand];
-    }
-
-    private Hexagon RandomizeHexagon()
-    {
-        int max = hexagons.Count;
-        int rand = Random.Range(0, max);
-
-        return hexagons[rand];
     }
 
     private Vector3 GetNeighborPositionByDirection(Hexagon hexBase, ENeighborPosition neighborPos)

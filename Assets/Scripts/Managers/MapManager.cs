@@ -1,0 +1,172 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MapManager : MonoBehaviour {
+
+    private static MapManager instance;
+    public static MapManager Instance
+    {
+        get { return instance; }
+    }
+
+    private Dictionary<int, Hexagon> mappedHexagons = new Dictionary<int, Hexagon>();
+    private int totalGroundSprites = 0;
+
+    [Header("Components")]
+    public MapGenerator mapGenerator;
+
+    [Header("Attributes")]
+    public EMapSize mapSize;
+
+    [Header("Sprites")]
+    public Sprite[] groundSprites;
+    public Sprite plainSprite;
+    public Sprite fogSprite;
+    public Sprite borderFogSprite;
+
+    private Hexagon hexRef = null;
+    private Hexagon neighborHexagonRef = null;
+    private Hexagon neighborsNeighborHexagonRef = null;
+
+    private Dictionary<EMapSize, MapStructure> gameMapDictionary = null;
+    private MapStructure mapStructureRef = null;
+
+    void Awake()
+    {
+        instance = this;
+
+        gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
+        {
+            { EMapSize.Small, new MapStructure(20, 40) },
+            { EMapSize.Medium, new MapStructure(50, 100) },
+            { EMapSize.Large, new MapStructure(110, 250) },
+            { EMapSize.Giant, new MapStructure(260, 500) }
+        };
+
+        if (groundSprites != null)
+        {
+            totalGroundSprites = groundSprites.Length;
+        }
+    }
+
+    void Start()
+    {
+        if(mapGenerator != null)
+        {
+            mapGenerator.CreateMap(GetMapSize(mapSize));
+        }
+    }
+
+    public Dictionary<int, Hexagon> GetMappedHexagons()
+    {
+        return mappedHexagons;
+    }
+
+    public Hexagon RandomizeHexagon()
+    {
+        int rand = Random.Range(0, mappedHexagons.Count);
+
+        return mappedHexagons[rand];
+    }
+
+    public void AddHexagon(int index, Hexagon hexagon)
+    {
+        if(hexagon == null)
+        {
+            return;
+        }
+
+        if(mappedHexagons == null)
+        {
+            mappedHexagons = new Dictionary<int, Hexagon>();
+        }
+
+        if(hexagon != null)
+        {
+            hexagon.ChangeToFoggedState();
+        }
+
+        mappedHexagons.Add(index, hexagon);
+    }
+
+    public Sprite GetRandomLandSprite()
+    {
+        if (groundSprites != null)
+        {
+            return groundSprites[Random.Range(0, totalGroundSprites)];
+        }
+
+        return null;
+    }
+    
+    public Sprite GetFogSprite()
+    {
+        if(fogSprite != null)
+        {
+            return fogSprite;
+        }
+
+        return null;
+    }
+
+    public Sprite GetBorderFogSprite()
+    {
+        if(borderFogSprite != null)
+        {
+            return borderFogSprite;
+        }
+
+        return null;
+    }
+
+    public Hexagon TryGetHexagonByIndex(int index)
+    {
+        if (index == -1 || mappedHexagons == null)
+        {
+            return null;
+        }
+
+        mappedHexagons.TryGetValue(index, out hexRef);
+
+        return hexRef;
+    }
+
+    public void RevealNeighbors(Hexagon refHexagon)
+    {
+        if (refHexagon != null && refHexagon.neighborStructure != null && mappedHexagons != null)
+        {
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topLeft);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topMiddle);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topRight);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomRight);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomMiddle);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomLeft);
+        }
+    }
+
+    private void ValidateNeighborHexagonAndRevealIt(int index)
+    {
+        if (index > -1)
+        {
+            neighborHexagonRef = TryGetHexagonByIndex(index);
+
+            if (neighborHexagonRef != null)
+            {
+                neighborHexagonRef.ChangeToVisibleState();
+            }
+        }
+    }
+
+    private int GetMapSize(EMapSize mapSize)
+    {
+        if (gameMapDictionary != null)
+        {
+            mapStructureRef = gameMapDictionary[mapSize];
+
+            return Random.Range(mapStructureRef.min, mapStructureRef.max + 1);
+        }
+
+        return 0;
+    }
+}

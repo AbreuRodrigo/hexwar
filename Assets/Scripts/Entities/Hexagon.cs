@@ -6,8 +6,9 @@ using UnityEngine;
 
 public class Hexagon : MonoBehaviour
 {
-    public SpriteRenderer spriteRenderer;
-    public string id;
+    public SpriteRenderer landSpriteRenderer;
+    public SpriteRenderer fogSpriteRenderer;
+    public int index;
     public float width;
     public float height;
     public bool isPlayer;
@@ -15,24 +16,24 @@ public class Hexagon : MonoBehaviour
     public int troop = 0;
     public NeighborStructure neighborStructure;
     public HexagonHUD hud;
+    public ELandState state;
 
 	void Awake ()
     {
         neighborStructure = new NeighborStructure();
 
-        if (spriteRenderer == null)
+        if (landSpriteRenderer == null)
         {
-            spriteRenderer = GetComponent<SpriteRenderer>();
+            landSpriteRenderer = GetComponent<SpriteRenderer>();
         }
 
-        id = Guid.NewGuid().ToString().Substring(0, 7);
-        width = spriteRenderer.size.x;
-        height = spriteRenderer.size.y;
+        width = landSpriteRenderer.size.x;
+        height = landSpriteRenderer.size.y;
     }
         
     public void ChangeColor(Color color)
     {
-        spriteRenderer.color = color;
+        landSpriteRenderer.color = color;
     }
 
     public void SetAsPlayer(Player player)
@@ -48,6 +49,14 @@ public class Hexagon : MonoBehaviour
             }
 
             ChangeColor(player.playerColor);
+        }
+    }
+
+    public void SetLandSprite(Sprite sprite)
+    {
+        if(landSpriteRenderer != null)
+        {
+            landSpriteRenderer.sprite = sprite;
         }
     }
     
@@ -85,24 +94,200 @@ public class Hexagon : MonoBehaviour
 
     public void DetectNeighbors()
     {
-        Hexagon neighbor = MathHelper.DetectNeighbor(this, Vector3.up);
+        float x = transform.position.x;
+        float y = transform.position.y;       
+
+        Hexagon neighbor = null;
+
+        //Defining TopLeft
+        Vector3 direction = new Vector3(x - width * 0.75f, y + height * 0.5f, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
 
         if(neighbor != null)
         {
-            if(!this.neighborStructure.HasTopMiddleNeighbor())
-            {
-                this.neighborStructure.AddTopMiddleNeighbor(neighbor.id);
-            }
+            this.neighborStructure.AddTopLeftNeighbor(neighbor.index);
         }
 
-        neighbor = MathHelper.DetectNeighbor(this, Vector3.down);
+        //Defining TopMiddle
+        direction = new Vector3(x, y + height, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
 
         if (neighbor != null)
         {
-            if (!this.neighborStructure.HasBottomMiddleNeighbor())
+            this.neighborStructure.AddTopMiddleNeighbor(neighbor.index);
+        }
+        
+        //Defining TopRight
+        direction = new Vector3(x + width * 0.75f, y + height * 0.5f, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
+        
+        if (neighbor != null)
+        {
+            this.neighborStructure.AddTopRightNeighbor(neighbor.index);
+        }
+
+        //Defining BottomRight
+        direction = new Vector3(x + width * 0.75f, y - height * 0.5f, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
+
+        if (neighbor != null)
+        {
+            this.neighborStructure.AddBottomRightNeighbor(neighbor.index);
+        }
+
+        //Defining BottomMiddle
+        direction = new Vector3(x, y - height, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
+
+        if (neighbor != null)
+        {
+            this.neighborStructure.AddBottomMiddleNeighbor(neighbor.index);
+        }
+
+        //Defining BottomLeft
+        direction = new Vector3(x - width * 0.75f, y - height * 0.5f, 0);
+        neighbor = MathHelper.DetectNeighbor(this, direction);
+
+        if (neighbor != null)
+        {
+            this.neighborStructure.AddBottomLeftNeighbor(neighbor.index);
+        }
+    }
+
+    public void AddToTopLeft(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddTopLeftNeighbor(index);
+        }
+    }
+
+    public void AddToTopMiddle(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddTopMiddleNeighbor(index);
+        }
+    }
+
+    public void AddToTopRight(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddTopRightNeighbor(index);
+        }
+    }
+
+    public void AddToBottomRight(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddBottomRightNeighbor(index);
+        }
+    }
+
+    public void AddToBottomMiddle(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddBottomMiddleNeighbor(index);
+        }
+    }
+
+    public void AddToBottomLeft(int index)
+    {
+        if (neighborStructure != null)
+        {
+            neighborStructure.AddBottomLeftNeighbor(index);
+        }
+    }
+
+    public void ChangeToVisibleState()
+    {
+        ChangeState(ELandState.Visible);
+        ActivateLandSprite();
+    }
+
+    public void ChangeToFoggedState()
+    {
+        ChangeState(ELandState.Fogged);
+        ActivateFogSprite();
+    }
+
+    public void ChangeToBorderFoggedState()
+    {
+        ChangeState(ELandState.BorderFooged);
+        ActivateBorderFogSprite();
+    }
+
+    private void ChangeState(ELandState state)
+    {
+        this.state = state;
+    }
+
+    private void ActivateLandSprite()
+    {
+        if (landSpriteRenderer != null)
+        {
+            if (landSpriteRenderer.sprite == null && MapManager.Instance != null)
             {
-                this.neighborStructure.AddBottomMiddleNeighbor(neighbor.id);
+                landSpriteRenderer.sprite = MapManager.Instance.GetRandomLandSprite();
             }
+
+            landSpriteRenderer.enabled = true;
+            DeactivateFogSprite();
+        }
+    }
+
+    private void DeactivateLandSprite()
+    {
+        if (landSpriteRenderer != null)
+        {
+            landSpriteRenderer.enabled = false;
+        }
+    }
+
+    private void ActivateFogSprite()
+    {
+        if (fogSpriteRenderer != null)
+        {
+            if (fogSpriteRenderer.sprite == null && MapManager.Instance != null)
+            {
+                fogSpriteRenderer.sprite = MapManager.Instance.GetFogSprite();
+            }
+
+            fogSpriteRenderer.enabled = true;
+            DeactivateLandSprite();
+        }
+    }
+
+    private void DeactivateFogSprite()
+    {
+        if(fogSpriteRenderer != null)
+        {            
+            fogSpriteRenderer.enabled = false;
+            fogSpriteRenderer.gameObject.SetActive(false);
+        }
+    }
+
+    private void ActivateBorderFogSprite()
+    {
+        if (fogSpriteRenderer != null && landSpriteRenderer != null && MapManager.Instance != null)
+        {
+            if (fogSpriteRenderer.sprite == null)
+            {
+                fogSpriteRenderer.sprite = MapManager.Instance.GetBorderFogSprite();
+            }
+
+            if(landSpriteRenderer.sprite == null)
+            {
+                landSpriteRenderer.sprite = MapManager.Instance.GetRandomLandSprite();
+            }
+
+            landSpriteRenderer.enabled = true;
+
+            fogSpriteRenderer.gameObject.SetActive(true);
+            fogSpriteRenderer.enabled = true;
         }
     }
 }

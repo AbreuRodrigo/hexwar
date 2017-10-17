@@ -10,17 +10,28 @@ public class GameManager : MonoBehaviour
         get { return instance; }
     }
 
+    [Header("Components")]
+    public UIManager uiManager;
     public SelectionArrow selection;
     public Player localPlayer;
-    public UIManager uiManager;
-    public int currentTurn = 1;
+    public TrailManager trailManager;
+    public TargetSelection targetSelection;
 
+    [Header("Opponents")]
+    public List<Player> opponents;
+
+    [Header("Game Stats")]
+    public int currentTurn = 1;
+    public EGamePhase currentPhase;
+   
     private int frameControl = 5;
     private int currentFrame = 0;
     private Hexagon lastHexagon;
-    private Hexagon playerHexagon;
 
     private Hexagon selectedHexagon;
+
+    public GameObject trail;
+    public int poolSize;
 
     void Awake()
     {
@@ -41,13 +52,13 @@ public class GameManager : MonoBehaviour
     {
         if (localPlayer != null && hexLand != null)
         {
-            playerHexagon = hexLand;
+            Hexagon playerHexagon = hexLand;
             playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
             playerHexagon.SetAsPlayer(localPlayer);
 
             localPlayer.AddHexLand(playerHexagon);
 
-            Vector3 p = this.playerHexagon.gameObject.transform.position;
+            Vector3 p = playerHexagon.gameObject.transform.position;
             p.z = Camera.main.transform.position.z;
 
             Camera.main.transform.position = p;
@@ -73,6 +84,11 @@ public class GameManager : MonoBehaviour
 
             if (collider != null)
             {
+                if(targetSelection != null)
+                {
+                    targetSelection.gameObject.SetActive(false);
+                }
+
                 selectedHexagon = collider.gameObject.GetComponent<Hexagon>();
 
                 if (selectedHexagon != null && selectedHexagon.isPlayer)
@@ -84,7 +100,7 @@ public class GameManager : MonoBehaviour
                         lastHexagon = selectedHexagon;
                         lastHexagon.OnRayCastHit();
                     }
-                    else if (lastHexagon != null && lastHexagon.id != selectedHexagon.id)
+                    else if (lastHexagon != null && lastHexagon.index != selectedHexagon.index)
                     {
                         selectedHexagon.OnRayCastHit();
                         lastHexagon.OnRayCastExit();
@@ -97,6 +113,14 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
+                    if(targetSelection != null && selectedHexagon.state == ELandState.Visible)
+                    {
+                        targetSelection.transform.SetParent(collider.transform);
+                        targetSelection.transform.position = new Vector3(0, 0, 0);
+                        targetSelection.transform.localPosition = new Vector3(0, 0.7f, 0);
+                        targetSelection.gameObject.SetActive(true);
+                    }
+
                     if (lastHexagon != null)
                     {
                         lastHexagon.OnRayCastExit();
@@ -118,16 +142,28 @@ public class GameManager : MonoBehaviour
 
     private void EnableSelection(Hexagon targetHexagon)
     {
-        if(selection != null && targetHexagon != null)
+        if (selection != null && targetHexagon != null)
         {
             selection.transform.position = targetHexagon.transform.position;
             selection.gameObject.SetActive(true);
+
+            if (trailManager != null)
+            {
+                trailManager.Enable(
+                    new Vector3(selection.transform.position.x, selection.transform.position.y, -2)
+                );
+            }
         }
     }
 
     private void DisableSelection()
-    { 
-        if(selection != null)
+    {
+        if (trailManager != null)
+        {
+            trailManager.Disable();
+        }
+
+        if (selection != null)
         {
             selection.gameObject.SetActive(false);
         }

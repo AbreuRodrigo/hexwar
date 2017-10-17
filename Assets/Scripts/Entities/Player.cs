@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public Dictionary<string, Hexagon> hexagons = new Dictionary<string, Hexagon>();
+    public Dictionary<int, Hexagon> hexagons = new Dictionary<int, Hexagon>();
 
     public string playerName;
     public int troop = 8;
@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
     {
         if(newHexLand != null)
         {
-            hexagons.Add(newHexLand.id, newHexLand);
+            hexagons.Add(newHexLand.index, newHexLand);
             totalHexLands++;
         }
     }

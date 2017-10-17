@@ -1,22 +1,54 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PinchZoom : MonoBehaviour
 {
+    public Camera mainCamera;
     public float perspectiveZoomSpeed = 0.01f;
     public float orthoZoomSpeed = 0.01f;
     public float minZoon = 5;
     public float maxZoom = 20;
     private float zoomSpeedMouse = -25;
+    private bool initializing = true;
+
+    void Start()
+    {
+        mainCamera.orthographicSize = maxZoom;
+
+        iTween.ValueTo(gameObject, iTween.Hash(
+            "from", mainCamera.orthographicSize,
+            "to", minZoon,
+            "time", 1f,
+            "delay", 1,
+            "easetype", iTween.EaseType.easeOutCirc,
+            "onupdatetarget", gameObject, 
+            "onupdate", "OnFirstZoom"
+        ));
+    }
 
     void Update()
     {
-        if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android)
+        if (!initializing)
         {
-            ZoomViaTouch();
+            if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android)
+            {
+                ZoomViaTouch();
+            }
+            else
+            {
+                ZoomViaMouse();
+            }
         }
-        else
+    }
+
+    private void OnFirstZoom(float value)
+    {
+        mainCamera.orthographicSize = value;
+
+        if(mainCamera.orthographicSize <= minZoon)
         {
-            ZoomViaMouseAndKeyboard();
+            mainCamera.orthographicSize = minZoon;
+            initializing = false;
         }
     }
 
@@ -38,7 +70,7 @@ public class PinchZoom : MonoBehaviour
         }
     }
 
-    private void ZoomViaMouseAndKeyboard()
+    private void ZoomViaMouse()
     {
         if (Input.mouseScrollDelta != Vector2.zero)
         {
@@ -48,24 +80,24 @@ public class PinchZoom : MonoBehaviour
 
     private void DoZoom(float deltaMagnitudeDiff)
     {
-        if (Camera.main.orthographic && Camera.main.orthographicSize <= maxZoom || Camera.main.orthographicSize >= minZoon)
+        if (mainCamera.orthographic && mainCamera.orthographicSize <= maxZoom || mainCamera.orthographicSize >= minZoon)
         {
-            Camera.main.orthographicSize += deltaMagnitudeDiff * orthoZoomSpeed;
-            Camera.main.orthographicSize = Mathf.Max(Camera.main.orthographicSize, 0.1f);
+            mainCamera.orthographicSize += deltaMagnitudeDiff * orthoZoomSpeed;
+            mainCamera.orthographicSize = Mathf.Max(mainCamera.orthographicSize, 0.1f);
 
-            if (Camera.main.orthographicSize > maxZoom)
+            if (mainCamera.orthographicSize > maxZoom)
             {
-                Camera.main.orthographicSize = maxZoom;
+                mainCamera.orthographicSize = maxZoom;
             }
-            else if (Camera.main.orthographicSize < minZoon)
+            else if (mainCamera.orthographicSize < minZoon)
             {
-                Camera.main.orthographicSize = minZoon;
+                mainCamera.orthographicSize = minZoon;
             }
         }
-        else if (Camera.main.fieldOfView <= maxZoom || Camera.main.orthographicSize >= minZoon)
+        else if (mainCamera.fieldOfView <= maxZoom || mainCamera.orthographicSize >= minZoon)
         {
-            Camera.main.fieldOfView += deltaMagnitudeDiff * perspectiveZoomSpeed;
-            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView, minZoon, maxZoom);
+            mainCamera.fieldOfView += deltaMagnitudeDiff * perspectiveZoomSpeed;
+            mainCamera.fieldOfView = Mathf.Clamp(mainCamera.fieldOfView, minZoon, maxZoom);
         }
     }
 }

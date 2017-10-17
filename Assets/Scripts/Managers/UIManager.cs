@@ -5,10 +5,23 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("Components")]
+    public ScreenFader screenFader;
+
+    [Header("Elements")]
     public Text playerColorText;
     public Text playerTroopText;
     public Text playerLevelText;
     public Text currentTurnText;
+
+    void Start()
+    {
+        if(screenFader != null)
+        {
+            screenFader.gameObject.SetActive(true);
+            screenFader.FadeIn();
+        }
+    }
 
     public void UpdatePlayerUI(Player player)
     {

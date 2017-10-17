@@ -5,92 +5,88 @@ using UnityEngine;
 [System.Serializable]
 public class NeighborStructure
 {
-    private Dictionary<ENeighborPosition, string> neighbors = new Dictionary<ENeighborPosition, string>(6);
+    private Dictionary<ENeighborPosition, int> neighbors = new Dictionary<ENeighborPosition, int>(6);
 
     [Header("Neighbors")]
-    public string topLeft;
-    public string topMiddle;
-    public string topRight;
-    public string bottomRight;
-    public string bottomMiddle;
-    public string bottomLeft;
+    public int topLeft = -1;
+    public int topMiddle = -1;
+    public int topRight = -1;
+    public int bottomRight = -1;
+    public int bottomMiddle = -1;
+    public int bottomLeft = -1;
 
     public bool HasTopLeftNeighbor()
     {
-        return topLeft != null;
+        return topLeft != -1;
     }
 
     public bool HasTopMiddleNeighbor()
     {
-        return topMiddle != null;
+        return topMiddle != -1;
     }
 
     public bool HasTopRightNeighbor()
     {
-        return topRight != null;
+        return topRight != -1;
     }
 
     public bool HasBottomRightNeighbor()
     {
-        return bottomRight != null;
+        return bottomRight != -1;
     }
 
     public bool HasBottomMiddleNeighbor()
     {
-        return bottomMiddle != null;
+        return bottomMiddle != -1;
     }
 
     public bool HasBottomLeftNeighbor()
     {
-        return bottomLeft != null;
+        return bottomLeft != -1;
     }
 
-    public void AddTopLeftNeighbor(string id)
+    public void AddTopLeftNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.TopLeft, id, out topLeft);
+        AddIfNull(ENeighborPosition.TopLeft, index, out topLeft);
     }
 
-    public void AddTopMiddleNeighbor(string id)
+    public void AddTopMiddleNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.TopMiddle, id, out topMiddle);
+        AddIfNull(ENeighborPosition.TopMiddle, index, out topMiddle);
     }
 
-    public void AddTopRightNeighbor(string id)
+    public void AddTopRightNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.TopRight, id, out topRight);
+        AddIfNull(ENeighborPosition.TopRight, index, out topRight);
     }
 
-    public void AddBottomRightNeighbor(string id)
+    public void AddBottomRightNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.BottomRight, id, out bottomRight);
+        AddIfNull(ENeighborPosition.BottomRight, index, out bottomRight);
     }
 
-    public void AddBottomMiddleNeighbor(string id)
+    public void AddBottomMiddleNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.BottomMiddle, id, out bottomMiddle);
+        AddIfNull(ENeighborPosition.BottomMiddle, index, out bottomMiddle);
     }
 
-    public void AddBottomLeftNeighbor(string id)
+    public void AddBottomLeftNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.BottomLeft, id, out bottomLeft);
+        AddIfNull(ENeighborPosition.BottomLeft, index, out bottomLeft);
     }
 
-    private void AddIfNull(ENeighborPosition position, string id, out string neighborId)
+    private void AddIfNull(ENeighborPosition position, int id, out int neighborId)
     {
         if(neighbors != null)
         {
-            string outId = null;
-            neighbors.TryGetValue(position, out outId);
-            
-            if(outId == null)
-            {
-                neighbors.Add(position, id);
-                neighborId = id;
+            int outId;
+            neighbors.TryGetValue(position, out outId);            
+            neighbors.Add(position, id);
+            neighborId = id;
 
-                return;
-            }            
+            return;
         }
 
-        neighborId = null;
+        neighborId = -1;
     }
 }
