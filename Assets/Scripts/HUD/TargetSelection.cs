@@ -28,6 +28,11 @@ public class TargetSelection : MonoBehaviour
         GameManager.Instance.SubtractFromPreview();
     }
 
+    public void OnConfirmButtonPressed()
+    {
+        GameManager.Instance.ConfirmMoveTroop();
+    }
+
     public void Activate(ETargetSelectionType type)
     {
         gameObject.transform.localScale = Vector3.zero;
@@ -49,14 +54,14 @@ public class TargetSelection : MonoBehaviour
 
     public void RearrangeContentTop()
     {
-        confirmButton.transform.SetSiblingIndex(1);
-        actionContainer.transform.SetSiblingIndex(0);
+        confirmButton.transform.SetSiblingIndex(0);
+        actionContainer.transform.SetSiblingIndex(1);
     }
 
     public void RearrangeContentBottom()
     {
-        actionContainer.transform.SetSiblingIndex(1);
-        confirmButton.transform.SetSiblingIndex(0);
+        actionContainer.transform.SetSiblingIndex(0);
+        confirmButton.transform.SetSiblingIndex(1);
     }
 
     public void EnableAddButton()
@@ -105,5 +110,11 @@ public class TargetSelection : MonoBehaviour
         {
             confirmMoveButton.interactable = false;
         }
+    }
+
+    public void ResetFunctionalities()
+    {
+        DisableConfirmButton();
+        DisableSubtractButton();
     }
 }

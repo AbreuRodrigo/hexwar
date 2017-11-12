@@ -25,11 +25,11 @@ public class GameManager : MonoBehaviour
     public int currentTurn = 1;
     public EGamePhase currentPhase;
 
-    public Vector3 topPosition = new Vector3(0, -0.8f, 0);
-    public Vector3 bottomPosition = new Vector3(0, 0.8f, 0);
+    private Vector3 topPosition = new Vector3(0, 0.8f, 0);
+    private Vector3 bottomPosition = new Vector3(0, -0.8f, 0);
 
-    private Hexagon lastHexagon;
-    private Hexagon selectedHexagon;
+    public Hexagon lastHexagon;
+    public Hexagon selectedHexagon;
 
     public GameObject trail;
     public int poolSize;
@@ -55,10 +55,7 @@ public class GameManager : MonoBehaviour
         {
             Hexagon playerHexagon = hexLand;
             playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
-            playerHexagon.SetAsPlayer(localPlayer);
-
-            localPlayer.AddHexLand(playerHexagon);
-            playerHexagon.troop = localPlayer.troop;
+            playerHexagon.SetAsPlayer(localPlayer, localPlayer.troop);
 
             Vector3 p = playerHexagon.gameObject.transform.position;
             p.z = Camera.main.transform.position.z;
@@ -72,7 +69,7 @@ public class GameManager : MonoBehaviour
         if (Input.touchCount == 2)
         {
             selectedHexagon = null;
-            DisableSelection();
+            ClearSelection();
             return;
         }
 
@@ -89,21 +86,9 @@ public class GameManager : MonoBehaviour
                 HandleInputForHexagon(collider.gameObject);
                 HandleInputForTargetSelection(collider.gameObject);
             }
-        }
-    }
-
-    private void EnableSelection(Hexagon targetHexagon)
-    {
-        if (selection != null && targetHexagon != null)
-        {
-            selection.transform.position = targetHexagon.transform.position;
-            selection.gameObject.SetActive(true);
-
-            if (trailManager != null)
+            else
             {
-                trailManager.Enable(
-                    new Vector3(selection.transform.position.x, selection.transform.position.y, -2)
-                );
+                ClearSelection();
             }
         }
     }
@@ -121,35 +106,22 @@ public class GameManager : MonoBehaviour
     {
         Hexagon target = obj.gameObject.GetComponent<Hexagon>();
 
+        if(target != null && lastHexagon != null && target.id == lastHexagon.id)
+        {
+            ClearSelection();
+            return;
+        }
+
         if (target != null)
         {
-            if (target != null && target.isPlayer)
+            if (target.isPlayer)
             {
-                EnableSelection(target);
-
-                selectedHexagon = target;
-                localPlayer.selectedHexagonId = selectedHexagon.id;
-
-                if (lastHexagon == null)
-                {
-                    lastHexagon = target;
-                    lastHexagon.OnRayCastHit();
-                }
-                else if (lastHexagon != null && lastHexagon.id != target.id)
-                {
-                    target.OnRayCastHit();
-                    lastHexagon.OnRayCastExit();
-                    lastHexagon = target;
-                }
-                else
-                {
-                    lastHexagon = target;
-                }
+                SelectPlayerHexagon(target);
             }
-            else if (targetSelection != null && lastHexagon != null && target.state == ELandState.Visible)
+            else if (targetSelection != null && selectedHexagon != null && target.state == ELandState.Visible)
             {
-                ENeighborPosition neighborPosition = target.GetNeighborPositionInRelationTo(lastHexagon);
-
+                ENeighborPosition neighborPosition = target.GetNeighborPositionInRelationTo(selectedHexagon);
+                
                 targetSelection.gameObject.SetActive(false);
                 targetSelection.transform.localScale = Vector3.zero;
                 targetSelection.transform.SetParent(obj.transform);
@@ -158,9 +130,7 @@ public class GameManager : MonoBehaviour
 
                 targetSelection.Activate(target.isEnemy ? ETargetSelectionType.EnemyLand : ETargetSelectionType.EmptyLand);
 
-                float y = targetSelection.transform.localPosition.y;
-
-                if(y < 0)
+                if(targetSelection.transform.localPosition.y > 0)
                 {
                     targetSelection.RearrangeContentTop();
                 }
@@ -173,25 +143,22 @@ public class GameManager : MonoBehaviour
 
                 if(previewMove != null)
                 {
-                    previewMove.Reset(target.transform.position);
+                    previewMove.Reposition(target.transform.position);                    
                     previewMove.gameObject.SetActive(true);
+
+                    previewMove.ResetFunctionalities();
+                    targetSelection.ResetFunctionalities();
                 }
-            }
 
-            if (lastHexagon != null)
+                lastHexagon = target;
+            }
+            else
             {
-                //lastHexagon.OnRayCastExit();
-                //lastHexagon = null;
+                previewMove.gameObject.SetActive(false);
+                previewMove.ResetFunctionalities();
+
+                targetSelection.gameObject.SetActive(false);
             }
-
-            //DisableSelection();
-        }
-        else if (lastHexagon != null)
-        {
-            //lastHexagon.OnRayCastExit();
-            //lastHexagon = null;
-
-            //DisableSelection();
         }
     }
 
@@ -207,6 +174,7 @@ public class GameManager : MonoBehaviour
 
         ValidateConfirmMoveButton();
         ValidateSubtractButton();
+        ValidateAddButton();
     }
 
     public void SubtractFromPreview()
@@ -218,6 +186,17 @@ public class GameManager : MonoBehaviour
 
         ValidateConfirmMoveButton();
         ValidateSubtractButton();
+        ValidateAddButton();
+    }
+
+    public void ConfirmMoveTroop()
+    {
+        if (previewMove != null)
+        {
+            int amount = previewMove.Amount;
+
+            StartCoroutine(TradeTroop(selectedHexagon, lastHexagon, amount));
+        }
     }
 
     private void ValidateConfirmMoveButton()
@@ -250,17 +229,35 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void DisableSelection()
+    private void ValidateAddButton()
     {
-        if (trailManager != null)
+        if (previewMove != null)
         {
-            trailManager.Disable();
+            if (previewMove.Amount >= selectedHexagon.troop - 1)
+            {
+                targetSelection.DisableAddButton();
+            }
+            else
+            {
+                targetSelection.EnableAddButton();
+            }
         }
+    }
 
+    private void ClearSelection()
+    {
         if (selection != null)
         {
             selection.gameObject.SetActive(false);
         }
+
+        selectedHexagon = null;
+        lastHexagon = null;
+
+        previewMove.gameObject.SetActive(false);
+        targetSelection.gameObject.SetActive(false);
+
+        localPlayer.selectedHexagonId = -1;
     }
 
     private Vector3 ConvertNeightPositionToActionOrientation(ENeighborPosition neighborPosition)
@@ -282,5 +279,64 @@ public class GameManager : MonoBehaviour
         }
 
         return pos;
+    }
+
+    private void SelectPlayerHexagon(Hexagon targetHexagon)
+    {
+        if (targetHexagon != null && targetHexagon.isPlayer)
+        {
+            EnableSelection(targetHexagon.transform.position);
+
+            selectedHexagon = targetHexagon;
+            lastHexagon = targetHexagon;
+
+            localPlayer.selectedHexagonId = selectedHexagon.id;
+        }
+    }
+
+    private void EnableSelection(Vector3 pos)
+    {
+        if (selection != null)
+        {
+            selection.transform.position = pos;
+            selection.gameObject.SetActive(true);
+        }
+    }
+
+    private IEnumerator TradeTroop(Hexagon from, Hexagon to, int amount)
+    {
+        to.SetAsPlayer(localPlayer, 0);
+        targetSelection.gameObject.SetActive(false);
+        previewMove.gameObject.SetActive(false);
+
+        to.SetLandSprite(MapManager.Instance.plainSprite);
+
+        MapManager.Instance.RevealNeighbors(to);
+
+        Vector3 bumpVec = new Vector3(1.2f, 1.2f, 1);
+
+        while (amount > 0)
+        {
+            from.troop--;
+            from.hud.SetTroop(from.troop);
+
+            to.troop++;
+            to.hud.SetTroop(to.troop);
+
+            LeanTween.scale(from.hud.troopMarker.gameObject, bumpVec, 0.25f)
+                     .setEasePunch();
+
+            LeanTween.scale(to.hud.troopMarker.gameObject, bumpVec, 0.25f)
+                     .setEasePunch();
+
+            amount--;
+
+            yield return new WaitForSecondsRealtime(0.125f);
+        }
+
+        from.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
+        to.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
+
+        ClearSelection();
     }
 }

@@ -36,7 +36,7 @@ public class Hexagon : MonoBehaviour
         landSpriteRenderer.color = color;
     }
 
-    public void SetAsPlayer(Player player)
+    public void SetAsPlayer(Player player, int troop)
     {
         if (player != null)
         {
@@ -45,10 +45,13 @@ public class Hexagon : MonoBehaviour
             if (hud != null)
             {
                 hud.gameObject.SetActive(true);
-                hud.SetTroop(player.troop);
+                hud.SetTroop(troop);
+                this.troop = troop;
             }
 
             ChangeColor(player.playerColor);
+
+            player.AddHexLand(this);
         }
     }
 
@@ -214,33 +217,33 @@ public class Hexagon : MonoBehaviour
         ActivateFogSprite();
     }
 
-    public ENeighborPosition GetNeighborPositionInRelationTo(Hexagon relationHexagon)
+    public ENeighborPosition GetNeighborPositionInRelationTo(Hexagon currentPlayerHexagon)
     {
-        if(relationHexagon != null)
+        if(currentPlayerHexagon != null)
         {
-            if(relationHexagon.id == this.neighborStructure.bottomLeft)
+            if(currentPlayerHexagon.id == this.neighborStructure.bottomLeft)
             {
-                return ENeighborPosition.BottomLeft;
+                return ENeighborPosition.TopRight;
             }
-            if (relationHexagon.id == this.neighborStructure.bottomMiddle)
-            {
-                return ENeighborPosition.BottomMiddle;
-            }
-            if (relationHexagon.id == this.neighborStructure.bottomRight)
-            {
-                return ENeighborPosition.BottomRight;
-            }
-            if (relationHexagon.id == this.neighborStructure.topLeft)
-            {
-                return ENeighborPosition.TopLeft;
-            }
-            if (relationHexagon.id == this.neighborStructure.topMiddle)
+            if (currentPlayerHexagon.id == this.neighborStructure.bottomMiddle)
             {
                 return ENeighborPosition.TopMiddle;
             }
-            if (relationHexagon.id == this.neighborStructure.topRight)
+            if (currentPlayerHexagon.id == this.neighborStructure.bottomRight)
             {
-                return ENeighborPosition.TopRight;
+                return ENeighborPosition.TopLeft;
+            }
+            if (currentPlayerHexagon.id == this.neighborStructure.topLeft)
+            {
+                return ENeighborPosition.BottomRight;
+            }
+            if (currentPlayerHexagon.id == this.neighborStructure.topMiddle)
+            {
+                return ENeighborPosition.BottomMiddle;
+            }
+            if (currentPlayerHexagon.id == this.neighborStructure.topRight)
+            {
+                return ENeighborPosition.BottomLeft;
             }
         }
 

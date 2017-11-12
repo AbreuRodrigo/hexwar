@@ -10,7 +10,13 @@ public class PreviewMove : MonoBehaviour
     private int amount;
     public int Amount { get { return amount; } }
 
-    public void Reset(Vector3 newPosition)
+    public void ResetFunctionalities()
+    {
+        amount = 0;
+        UpdateHud();
+    }
+
+    public void Reposition(Vector3 newPosition)
     {
         transform.position = new Vector3(newPosition.x, newPosition.y, 0);
     }
