@@ -5,5 +5,6 @@
     TopRight,
     BottomRight,
     BottomMiddle,
-    BottomLeft
+    BottomLeft,
+    None
 }

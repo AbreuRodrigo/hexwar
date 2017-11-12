@@ -6,21 +6,14 @@ using UnityEngine.UI;
 public class ScreenFader : MonoBehaviour
 {
     public Image fadeImage;
-
+    
     public void FadeIn()
     {
         if (fadeImage != null)
         {
-            iTween.ValueTo(gameObject, iTween.Hash(
-                "from", fadeImage.color.a,
-                "to", 0,
-                "time", 3f,
-                "easetype", iTween.EaseType.linear,
-                "onupdatetarget", gameObject,
-                "onupdate", "OnFading",
-                "oncompletetarget", gameObject,
-                "oncomplete", "OnCompleteFadingIn"
-            ));
+            LeanTween.value(gameObject, fadeImage.color.a, 0, 2.5f)
+                     .setOnUpdate(OnFading)
+                     .setOnComplete(OnCompleteFadingIn);
         }
     }
 
@@ -28,16 +21,12 @@ public class ScreenFader : MonoBehaviour
     {
         if (fadeImage != null)
         {
-            iTween.ValueTo(gameObject, iTween.Hash(
-                "from", fadeImage.color.a,
-                "to", 1,
-                "time", 3f,
-                "easetype", iTween.EaseType.linear,
-                "onupdatetarget", gameObject,
-                "onupdate", "OnFading",
-                "oncompletetarget", gameObject,
-                "oncomplete", "OnCompleteFadingOut"
-            ));
+            Color target = fadeImage.color;
+            target.a = 1;
+
+            LeanTween.value(gameObject, fadeImage.color, target, 3)
+                     .setOnUpdate(OnFading)
+                     .setOnComplete(OnCompleteFadingOut);
         }
     }
 

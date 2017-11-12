@@ -96,7 +96,7 @@ public class MapGenerator : MonoBehaviour
         if (hexagonPrefab != null && mapParent != null)
         {
             hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, mapParent).GetComponent<Hexagon>();
-            hexRef.index = hexGenerationCount;
+            hexRef.id = hexGenerationCount;
             hexRef.SetLandSprite(MapManager.Instance.GetRandomLandSprite());
 
             MapManager.Instance.AddHexagon(hexGenerationCount, hexRef);            

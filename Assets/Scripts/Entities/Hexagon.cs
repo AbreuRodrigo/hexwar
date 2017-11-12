@@ -8,7 +8,7 @@ public class Hexagon : MonoBehaviour
 {
     public SpriteRenderer landSpriteRenderer;
     public SpriteRenderer fogSpriteRenderer;
-    public int index;
+    public int id;
     public float width;
     public float height;
     public bool isPlayer;
@@ -105,7 +105,7 @@ public class Hexagon : MonoBehaviour
 
         if(neighbor != null)
         {
-            this.neighborStructure.AddTopLeftNeighbor(neighbor.index);
+            this.neighborStructure.AddTopLeftNeighbor(neighbor.id);
         }
 
         //Defining TopMiddle
@@ -114,7 +114,7 @@ public class Hexagon : MonoBehaviour
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddTopMiddleNeighbor(neighbor.index);
+            this.neighborStructure.AddTopMiddleNeighbor(neighbor.id);
         }
         
         //Defining TopRight
@@ -123,7 +123,7 @@ public class Hexagon : MonoBehaviour
         
         if (neighbor != null)
         {
-            this.neighborStructure.AddTopRightNeighbor(neighbor.index);
+            this.neighborStructure.AddTopRightNeighbor(neighbor.id);
         }
 
         //Defining BottomRight
@@ -132,7 +132,7 @@ public class Hexagon : MonoBehaviour
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddBottomRightNeighbor(neighbor.index);
+            this.neighborStructure.AddBottomRightNeighbor(neighbor.id);
         }
 
         //Defining BottomMiddle
@@ -141,7 +141,7 @@ public class Hexagon : MonoBehaviour
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddBottomMiddleNeighbor(neighbor.index);
+            this.neighborStructure.AddBottomMiddleNeighbor(neighbor.id);
         }
 
         //Defining BottomLeft
@@ -150,7 +150,7 @@ public class Hexagon : MonoBehaviour
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddBottomLeftNeighbor(neighbor.index);
+            this.neighborStructure.AddBottomLeftNeighbor(neighbor.id);
         }
     }
 
@@ -212,6 +212,39 @@ public class Hexagon : MonoBehaviour
     {
         ChangeState(ELandState.Fogged);
         ActivateFogSprite();
+    }
+
+    public ENeighborPosition GetNeighborPositionInRelationTo(Hexagon relationHexagon)
+    {
+        if(relationHexagon != null)
+        {
+            if(relationHexagon.id == this.neighborStructure.bottomLeft)
+            {
+                return ENeighborPosition.BottomLeft;
+            }
+            if (relationHexagon.id == this.neighborStructure.bottomMiddle)
+            {
+                return ENeighborPosition.BottomMiddle;
+            }
+            if (relationHexagon.id == this.neighborStructure.bottomRight)
+            {
+                return ENeighborPosition.BottomRight;
+            }
+            if (relationHexagon.id == this.neighborStructure.topLeft)
+            {
+                return ENeighborPosition.TopLeft;
+            }
+            if (relationHexagon.id == this.neighborStructure.topMiddle)
+            {
+                return ENeighborPosition.TopMiddle;
+            }
+            if (relationHexagon.id == this.neighborStructure.topRight)
+            {
+                return ENeighborPosition.TopRight;
+            }
+        }
+
+        return ENeighborPosition.None;
     }
 
     public void ChangeToBorderFoggedState()

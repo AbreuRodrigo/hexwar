@@ -12,10 +12,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Components")]
     public UIManager uiManager;
-    public SelectionArrow selection;
+    public SelectionCircle selection;
     public Player localPlayer;
     public TrailManager trailManager;
     public TargetSelection targetSelection;
+    public PreviewMove previewMove;
 
     [Header("Opponents")]
     public List<Player> opponents;
@@ -23,11 +24,11 @@ public class GameManager : MonoBehaviour
     [Header("Game Stats")]
     public int currentTurn = 1;
     public EGamePhase currentPhase;
-   
-    private int frameControl = 5;
-    private int currentFrame = 0;
-    private Hexagon lastHexagon;
 
+    public Vector3 topPosition = new Vector3(0, -0.8f, 0);
+    public Vector3 bottomPosition = new Vector3(0, 0.8f, 0);
+
+    private Hexagon lastHexagon;
     private Hexagon selectedHexagon;
 
     public GameObject trail;
@@ -57,6 +58,7 @@ public class GameManager : MonoBehaviour
             playerHexagon.SetAsPlayer(localPlayer);
 
             localPlayer.AddHexLand(playerHexagon);
+            playerHexagon.troop = localPlayer.troop;
 
             Vector3 p = playerHexagon.gameObject.transform.position;
             p.z = Camera.main.transform.position.z;
@@ -84,58 +86,8 @@ public class GameManager : MonoBehaviour
 
             if (collider != null)
             {
-                if(targetSelection != null)
-                {
-                    targetSelection.gameObject.SetActive(false);
-                }
-
-                selectedHexagon = collider.gameObject.GetComponent<Hexagon>();
-
-                if (selectedHexagon != null && selectedHexagon.isPlayer)
-                {
-                    EnableSelection(selectedHexagon);
-
-                    if (lastHexagon == null)
-                    {
-                        lastHexagon = selectedHexagon;
-                        lastHexagon.OnRayCastHit();
-                    }
-                    else if (lastHexagon != null && lastHexagon.index != selectedHexagon.index)
-                    {
-                        selectedHexagon.OnRayCastHit();
-                        lastHexagon.OnRayCastExit();
-                        lastHexagon = selectedHexagon;
-                    }
-                    else
-                    {
-                        lastHexagon = selectedHexagon;
-                    }
-                }
-                else
-                {
-                    if(targetSelection != null && selectedHexagon.state == ELandState.Visible)
-                    {
-                        targetSelection.transform.SetParent(collider.transform);
-                        targetSelection.transform.position = new Vector3(0, 0, 0);
-                        targetSelection.transform.localPosition = new Vector3(0, 0.7f, 0);
-                        targetSelection.gameObject.SetActive(true);
-                    }
-
-                    if (lastHexagon != null)
-                    {
-                        lastHexagon.OnRayCastExit();
-                        lastHexagon = null;
-                    }
-
-                    DisableSelection();
-                }
-            }
-            else if (lastHexagon != null)
-            {
-                lastHexagon.OnRayCastExit();
-                lastHexagon = null;
-
-                DisableSelection();
+                HandleInputForHexagon(collider.gameObject);
+                HandleInputForTargetSelection(collider.gameObject);
             }
         }
     }
@@ -156,6 +108,148 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void HandleInputForTargetSelection(GameObject obj)
+    {
+        TargetSelection target = obj.gameObject.GetComponent<TargetSelection>();
+
+        if(target != null)
+        {
+        }
+    }
+
+    private void HandleInputForHexagon(GameObject obj)
+    {
+        Hexagon target = obj.gameObject.GetComponent<Hexagon>();
+
+        if (target != null)
+        {
+            if (target != null && target.isPlayer)
+            {
+                EnableSelection(target);
+
+                selectedHexagon = target;
+                localPlayer.selectedHexagonId = selectedHexagon.id;
+
+                if (lastHexagon == null)
+                {
+                    lastHexagon = target;
+                    lastHexagon.OnRayCastHit();
+                }
+                else if (lastHexagon != null && lastHexagon.id != target.id)
+                {
+                    target.OnRayCastHit();
+                    lastHexagon.OnRayCastExit();
+                    lastHexagon = target;
+                }
+                else
+                {
+                    lastHexagon = target;
+                }
+            }
+            else if (targetSelection != null && lastHexagon != null && target.state == ELandState.Visible)
+            {
+                ENeighborPosition neighborPosition = target.GetNeighborPositionInRelationTo(lastHexagon);
+
+                targetSelection.gameObject.SetActive(false);
+                targetSelection.transform.localScale = Vector3.zero;
+                targetSelection.transform.SetParent(obj.transform);
+                targetSelection.transform.position = Vector3.zero;
+                targetSelection.transform.localPosition = ConvertNeightPositionToActionOrientation(neighborPosition);
+
+                targetSelection.Activate(target.isEnemy ? ETargetSelectionType.EnemyLand : ETargetSelectionType.EmptyLand);
+
+                float y = targetSelection.transform.localPosition.y;
+
+                if(y < 0)
+                {
+                    targetSelection.RearrangeContentTop();
+                }
+                else
+                {
+                    targetSelection.RearrangeContentBottom();
+                }
+
+                targetSelection.gameObject.SetActive(true);
+
+                if(previewMove != null)
+                {
+                    previewMove.Reset(target.transform.position);
+                    previewMove.gameObject.SetActive(true);
+                }
+            }
+
+            if (lastHexagon != null)
+            {
+                //lastHexagon.OnRayCastExit();
+                //lastHexagon = null;
+            }
+
+            //DisableSelection();
+        }
+        else if (lastHexagon != null)
+        {
+            //lastHexagon.OnRayCastExit();
+            //lastHexagon = null;
+
+            //DisableSelection();
+        }
+    }
+
+    public void AddToPreview()
+    {
+        if(previewMove != null && 
+            selectedHexagon != null && 
+            selectedHexagon.troop > 0 && 
+            previewMove.Amount < selectedHexagon.troop - 1)
+        {
+            previewMove.Add();
+        }
+
+        ValidateConfirmMoveButton();
+        ValidateSubtractButton();
+    }
+
+    public void SubtractFromPreview()
+    {
+        if (previewMove != null)
+        {
+            previewMove.Subtract();
+        }
+
+        ValidateConfirmMoveButton();
+        ValidateSubtractButton();
+    }
+
+    private void ValidateConfirmMoveButton()
+    {
+        if(previewMove != null)
+        {
+            if(previewMove.Amount <= 0)
+            {
+                targetSelection.DisableSubtractButton();
+            }
+            else
+            {
+                targetSelection.EnableSubtractButton();
+            }            
+        }
+    }
+
+    private void ValidateSubtractButton()
+    {
+        if (previewMove != null)
+        {
+            if (previewMove.Amount <= 0)
+            {
+                targetSelection.DisableConfirmButton();
+            }
+            else
+            {
+                targetSelection.EnableConfirmButton();
+            }
+        }
+    }
+
     private void DisableSelection()
     {
         if (trailManager != null)
@@ -167,5 +261,26 @@ public class GameManager : MonoBehaviour
         {
             selection.gameObject.SetActive(false);
         }
+    }
+
+    private Vector3 ConvertNeightPositionToActionOrientation(ENeighborPosition neighborPosition)
+    {
+        Vector3 pos = Vector3.zero;
+
+        switch(neighborPosition)
+        {
+            case ENeighborPosition.TopLeft:
+            case ENeighborPosition.TopRight:
+            case ENeighborPosition.TopMiddle:
+                pos = topPosition;
+                break;
+            case ENeighborPosition.BottomLeft:
+            case ENeighborPosition.BottomRight:
+            case ENeighborPosition.BottomMiddle:
+                pos = bottomPosition;
+                break;
+        }
+
+        return pos;
     }
 }

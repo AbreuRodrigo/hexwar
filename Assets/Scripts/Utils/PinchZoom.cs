@@ -15,15 +15,7 @@ public class PinchZoom : MonoBehaviour
     {
         mainCamera.orthographicSize = maxZoom;
 
-        iTween.ValueTo(gameObject, iTween.Hash(
-            "from", mainCamera.orthographicSize,
-            "to", minZoon,
-            "time", 1f,
-            "delay", 1,
-            "easetype", iTween.EaseType.easeOutCirc,
-            "onupdatetarget", gameObject, 
-            "onupdate", "OnFirstZoom"
-        ));
+        LeanTween.value(gameObject, mainCamera.orthographicSize, minZoon, 1).setDelay(1).setEaseOutCirc().setOnUpdate(OnFirstZoom);
     }
 
     void Update()

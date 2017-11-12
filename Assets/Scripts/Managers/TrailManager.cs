@@ -74,7 +74,7 @@ public class TrailManager : MonoBehaviour {
                 r.Play(trailSource);
             }
 
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSecondsRealtime(0.25f);
         }
     }
 }
