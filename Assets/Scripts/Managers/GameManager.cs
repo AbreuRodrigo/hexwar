@@ -2,19 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    private static GameManager instance;
-    public static GameManager Instance
-    {
-        get { return instance; }
-    }
-
     [Header("Components")]
     public UIManager uiManager;
     public SelectionCircle selection;
     public Player localPlayer;
-    public TrailManager trailManager;
     public TargetSelection targetSelection;
     public PreviewMove previewMove;
 
@@ -30,23 +23,28 @@ public class GameManager : MonoBehaviour
 
     public Hexagon lastHexagon;
     public Hexagon selectedHexagon;
-
-    public GameObject trail;
-    public int poolSize;
-
-    void Awake()
-    {
-        instance = this;
-        Random.InitState((int)System.Environment.TickCount);
-    }
-
+    
+    private Dictionary<EGamePhase, EGamePhase> phaseOrder = null;
+        
     void Start()
     {
-        if(uiManager != null && localPlayer != null)
+        Random.InitState((int)System.Environment.TickCount);
+
+        phaseOrder = new Dictionary<EGamePhase, EGamePhase>()
+        {
+            { EGamePhase.MaintenancePhase, EGamePhase.CombatOrExplorationPhase },
+            { EGamePhase.CombatOrExplorationPhase, EGamePhase.ClearPhase },
+            { EGamePhase.ClearPhase, EGamePhase.WaitPhase },
+            { EGamePhase.WaitPhase, EGamePhase.MaintenancePhase }
+        };
+
+        if (uiManager != null && localPlayer != null)
         {
             uiManager.UpdatePlayerUI(localPlayer);
             uiManager.SetCurrentTurnUI(currentTurn.ToString());
         }
+
+        DoPhaseTransition();
     }
 
     public void SetPlayerInitialHexLand(Hexagon hexLand)
@@ -81,7 +79,7 @@ public class GameManager : MonoBehaviour
 
             Collider2D collider = hit.collider;
 
-            if (collider != null)
+            if (collider != null && currentPhase == EGamePhase.CombatOrExplorationPhase)
             {
                 HandleInputForHexagon(collider.gameObject);
                 HandleInputForTargetSelection(collider.gameObject);
@@ -106,15 +104,9 @@ public class GameManager : MonoBehaviour
     {
         Hexagon target = obj.gameObject.GetComponent<Hexagon>();
 
-        if(target != null && lastHexagon != null && target.id == lastHexagon.id)
-        {
-            ClearSelection();
-            return;
-        }
-
         if (target != null)
         {
-            if (target.isPlayer)
+            if (target.isPlayer && currentTurn > target.spawningTurn)
             {
                 SelectPlayerHexagon(target);
             }
@@ -156,8 +148,6 @@ public class GameManager : MonoBehaviour
             {
                 previewMove.gameObject.SetActive(false);
                 previewMove.ResetFunctionalities();
-
-                targetSelection.gameObject.SetActive(false);
             }
         }
     }
@@ -189,13 +179,25 @@ public class GameManager : MonoBehaviour
         ValidateAddButton();
     }
 
+    /// <summary>
+    /// Click the "Move" button to move troops to the target hexagon land
+    /// </summary>
     public void ConfirmMoveTroop()
     {
-        if (previewMove != null)
+        if (previewMove != null && currentPhase == EGamePhase.CombatOrExplorationPhase)
         {
             int amount = previewMove.Amount;
 
-            StartCoroutine(TradeTroop(selectedHexagon, lastHexagon, amount));
+            StartCoroutine(TradeTroop(selectedHexagon, lastHexagon, amount));           
+
+            localPlayer.actions--;
+
+            uiManager.UpdatePlayerUI(localPlayer);
+
+            if(localPlayer.actions <= 0)
+            {
+                DoPhaseTransition();
+            }
         }
     }
 
@@ -303,6 +305,48 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ReceiveTurnToken()
+    {
+        if(localPlayer != null)
+        {
+            localPlayer.actions = localPlayer.initialActions;
+        }
+
+        SnoringMarkerManager.Instance.ReturnAllObjectsInUseToPool();
+    }
+
+    public void AdvanceTurn()
+    {
+        currentTurn++;
+        SnoringMarkerManager.Instance.ReturnAllObjectsInUseToPool();        
+    }
+
+    private void DoPhaseTransition()
+    {
+        currentPhase = phaseOrder[currentPhase];
+        uiManager.UpdateInterfaceByGamePhase(currentPhase);
+    }
+
+    public void SkipTurn()
+    {
+        PassTurnTokenAhead();
+    }
+
+    public void EndTurn()
+    {
+        PassTurnTokenAhead();
+    }
+
+    private void PassTurnTokenAhead()
+    {
+        currentPhase = EGamePhase.WaitPhase;
+
+        localPlayer.actions = 0;
+
+        uiManager.UpdateInterfaceByGamePhase(currentPhase);
+        uiManager.UpdatePlayerUI(localPlayer);
+    }
+
     private IEnumerator TradeTroop(Hexagon from, Hexagon to, int amount)
     {
         to.SetAsPlayer(localPlayer, 0);
@@ -336,6 +380,9 @@ public class GameManager : MonoBehaviour
 
         from.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
         to.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
+        to.spawningTurn = currentTurn;
+
+        SnoringMarkerManager.Instance.RequestSnoringMarker(to);
 
         ClearSelection();
     }

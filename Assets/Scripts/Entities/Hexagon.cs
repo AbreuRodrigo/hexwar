@@ -17,6 +17,7 @@ public class Hexagon : MonoBehaviour
     public NeighborStructure neighborStructure;
     public HexagonHUD hud;
     public ELandState state;
+    public int spawningTurn = 0;
 
 	void Awake ()
     {

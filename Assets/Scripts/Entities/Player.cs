@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     public Dictionary<int, Hexagon> hexagons = new Dictionary<int, Hexagon>();
 
     public string playerName;
+    public int actions = 2;
+    public int initialActions = 2;
     public int troop = 7;
     public int totalHexLands = 0;
     public int level;
