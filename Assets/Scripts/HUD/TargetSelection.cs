@@ -117,4 +117,14 @@ public class TargetSelection : MonoBehaviour
         DisableConfirmButton();
         DisableSubtractButton();
     }
+
+    public void ResetConsideringSelectionTroop(int troop, ETargetSelectionType type)
+    {
+        Activate(type);
+
+        if(troop > 1)
+        {
+
+        }
+    }
 }

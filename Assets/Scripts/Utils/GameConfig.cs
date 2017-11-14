@@ -10,6 +10,7 @@ public class GameConfig
     public static Color player1Color = new Color(0.69f, 1f, 0.69f);
     public static Color player1ColorOnHover = new Color(0.15f, 1f, 0.27f);
 
+    public const int BASE_TURN_TIMER = 30;
 
     public static Color openEnvironmentColor = new Color(0.69f, 0.76f, 1f);
     public static Color openEnvironmentColorOnHover = new Color(0.45f, 0.55f, 1f);

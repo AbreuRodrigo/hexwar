@@ -23,6 +23,8 @@ public class GameManager : Singleton<GameManager>
 
     public Hexagon lastHexagon;
     public Hexagon selectedHexagon;
+
+    private bool turnTimerIsRunning = false;
     
     private Dictionary<EGamePhase, EGamePhase> phaseOrder = null;
         
@@ -40,26 +42,11 @@ public class GameManager : Singleton<GameManager>
 
         if (uiManager != null && localPlayer != null)
         {
-            uiManager.UpdatePlayerUI(localPlayer);
+            uiManager.UpdateTopUI(localPlayer, currentTurn);
             uiManager.SetCurrentTurnUI(currentTurn.ToString());
         }
 
         DoPhaseTransition();
-    }
-
-    public void SetPlayerInitialHexLand(Hexagon hexLand)
-    {
-        if (localPlayer != null && hexLand != null)
-        {
-            Hexagon playerHexagon = hexLand;
-            playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
-            playerHexagon.SetAsPlayer(localPlayer, localPlayer.troop);
-
-            Vector3 p = playerHexagon.gameObject.transform.position;
-            p.z = Camera.main.transform.position.z;
-
-            Camera.main.transform.position = p;
-        }
     }
 
     private void Update()
@@ -91,6 +78,21 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    public void SetPlayerInitialHexLand(Hexagon hexLand)
+    {
+        if (localPlayer != null && hexLand != null)
+        {
+            Hexagon playerHexagon = hexLand;
+            playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
+            playerHexagon.SetAsPlayer(localPlayer, localPlayer.troop);
+
+            Vector3 p = playerHexagon.gameObject.transform.position;
+            p.z = Camera.main.transform.position.z;
+
+            Camera.main.transform.position = p;
+        }
+    }
+
     private void HandleInputForTargetSelection(GameObject obj)
     {
         TargetSelection target = obj.gameObject.GetComponent<TargetSelection>();
@@ -110,7 +112,8 @@ public class GameManager : Singleton<GameManager>
             {
                 SelectPlayerHexagon(target);
             }
-            else if (targetSelection != null && selectedHexagon != null && target.state == ELandState.Visible)
+            else if (targetSelection != null && selectedHexagon != null && 
+                selectedHexagon.TestIsNeighbour(target)  && target.state == ELandState.Visible)
             {
                 ENeighborPosition neighborPosition = target.GetNeighborPositionInRelationTo(selectedHexagon);
                 
@@ -139,15 +142,16 @@ public class GameManager : Singleton<GameManager>
                     previewMove.gameObject.SetActive(true);
 
                     previewMove.ResetFunctionalities();
-                    targetSelection.ResetFunctionalities();
+                }
+
+                if(targetSelection != null && selectedHexagon.troop > 1)
+                {
+                    targetSelection.EnableAddButton();
+                    targetSelection.DisableSubtractButton();
+                    targetSelection.DisableConfirmButton();
                 }
 
                 lastHexagon = target;
-            }
-            else
-            {
-                previewMove.gameObject.SetActive(false);
-                previewMove.ResetFunctionalities();
             }
         }
     }
@@ -156,7 +160,7 @@ public class GameManager : Singleton<GameManager>
     {
         if(previewMove != null && 
             selectedHexagon != null && 
-            selectedHexagon.troop > 0 && 
+            selectedHexagon.troop > 1 && 
             previewMove.Amount < selectedHexagon.troop - 1)
         {
             previewMove.Add();
@@ -192,7 +196,7 @@ public class GameManager : Singleton<GameManager>
 
             localPlayer.actions--;
 
-            uiManager.UpdatePlayerUI(localPlayer);
+            uiManager.UpdateTopUI(localPlayer, currentTurn);
 
             if(localPlayer.actions <= 0)
             {
@@ -287,7 +291,11 @@ public class GameManager : Singleton<GameManager>
     {
         if (targetHexagon != null && targetHexagon.isPlayer)
         {
-            EnableSelection(targetHexagon.transform.position);
+            if (selection != null)
+            {
+                selection.transform.position = targetHexagon.transform.position;
+                selection.gameObject.SetActive(true);
+            }
 
             selectedHexagon = targetHexagon;
             lastHexagon = targetHexagon;
@@ -296,35 +304,21 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private void EnableSelection(Vector3 pos)
-    {
-        if (selection != null)
-        {
-            selection.transform.position = pos;
-            selection.gameObject.SetActive(true);
-        }
-    }
-
     public void ReceiveTurnToken()
     {
-        if(localPlayer != null)
-        {
-            localPlayer.actions = localPlayer.initialActions;
-        }
-
         SnoringMarkerManager.Instance.ReturnAllObjectsInUseToPool();
-    }
 
-    public void AdvanceTurn()
-    {
         currentTurn++;
-        SnoringMarkerManager.Instance.ReturnAllObjectsInUseToPool();        
-    }
 
+        DoPhaseTransition();
+
+        uiManager.UpdateTopUI(localPlayer, currentTurn);
+    }
+    
     private void DoPhaseTransition()
     {
         currentPhase = phaseOrder[currentPhase];
-        uiManager.UpdateInterfaceByGamePhase(currentPhase);
+        ProcessPhase();
     }
 
     public void SkipTurn()
@@ -339,12 +333,14 @@ public class GameManager : Singleton<GameManager>
 
     private void PassTurnTokenAhead()
     {
-        currentPhase = EGamePhase.WaitPhase;
+        turnTimerIsRunning = false;
 
         localPlayer.actions = 0;
 
-        uiManager.UpdateInterfaceByGamePhase(currentPhase);
-        uiManager.UpdatePlayerUI(localPlayer);
+        currentPhase = EGamePhase.WaitPhase;
+        ProcessPhase();        
+        
+        StartCoroutine(WaitAndRegainTurnToken());        
     }
 
     private IEnumerator TradeTroop(Hexagon from, Hexagon to, int amount)
@@ -385,5 +381,65 @@ public class GameManager : Singleton<GameManager>
         SnoringMarkerManager.Instance.RequestSnoringMarker(to);
 
         ClearSelection();
+    }
+
+    //TODO Remove it later
+    private IEnumerator WaitAndRegainTurnToken()
+    {
+        yield return new WaitForSecondsRealtime(3);
+
+        ReceiveTurnToken();
+    }
+
+    private IEnumerator TurnShiftTimer()
+    {
+        int initSeconds = GameConfig.BASE_TURN_TIMER + (localPlayer.level - 1) * 2;
+        uiManager.SetTurnTimer(initSeconds);
+
+        while (initSeconds >= 0 && turnTimerIsRunning)
+        {
+            uiManager.SetTurnTimer(initSeconds);
+
+            initSeconds--;
+
+            if(initSeconds == 0)
+            {
+                PassTurnTokenAhead();
+            }
+
+            yield return new WaitForSecondsRealtime(1);
+        }
+    }
+
+    private void ProcessPhase()
+    {
+        switch (currentPhase)
+        {
+            case EGamePhase.MaintenancePhase:
+                localPlayer.actions = localPlayer.initialActions;
+
+                localPlayer.AddUnitToAllHexagonsPlayerHas();
+                    
+                uiManager.UpdateUiForMaintenancePhase();
+
+                DoPhaseTransition();
+                break;
+            case EGamePhase.CombatOrExplorationPhase:
+                turnTimerIsRunning = true;
+
+                uiManager.UpdateUiForCombatOrExplorationPhase();
+
+                StartCoroutine(TurnShiftTimer());
+                break;
+            case EGamePhase.ClearPhase:
+                uiManager.UpdateUiForClearPhase();
+                break;
+            case EGamePhase.WaitPhase:
+                turnTimerIsRunning = false;
+                uiManager.UpdateUiForWaitPhase();
+                break;
+        }
+
+        uiManager.UpdateTopUI(localPlayer, currentTurn);
     }
 }

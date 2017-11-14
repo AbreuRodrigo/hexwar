@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObjectPool
 {
     public Stack<PoolableObject> availableObjects = new Stack<PoolableObject>();
-    public List<PoolableObject> usedObjects = new List<PoolableObject>();
+    public LinkedList<PoolableObject> usedObjects = new LinkedList<PoolableObject>();
 
     private int initialPoolSize;
     private PoolableObject poolableObject;
@@ -45,7 +45,7 @@ public class ObjectPool
         if(availableObjects != null && availableObjects.Count > 0)
         {
             objRef = availableObjects.Pop();
-            usedObjects.Add(objRef);
+            usedObjects.AddLast(objRef);
 
             return objRef;
         }

@@ -23,4 +23,13 @@ public class Player : MonoBehaviour
             totalHexLands++;
         }
     }
+
+    public void AddUnitToAllHexagonsPlayerHas()
+    {
+        foreach (KeyValuePair<int, Hexagon> hexagon in hexagons)
+        {
+            hexagon.Value.AddOneUnitToTroop();
+            troop++;
+        }
+    }
 }

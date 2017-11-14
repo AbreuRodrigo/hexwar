@@ -5,15 +5,31 @@ using UnityEngine.UI;
 
 public class UIButton : MonoBehaviour
 {
+    private const string TURN_ACTION_SKIP = "Skip Turn";
+    private const string TURN_ACTION_END = "End Turn";
+
     public Button button;
     public Text buttonText;
     public ETurnActionButtonState state;
 
-    public void SetText(string text)
+    [Header("Colors")]
+    public Color skipTurnColor;
+    public Color endTurnColor;
+
+    public void ChangeToSkipState()
     {
-        buttonText.text = text;
+        state = ETurnActionButtonState.Skip;
+        button.image.color = skipTurnColor;
+        buttonText.text = TURN_ACTION_SKIP;
     }
 
+    public void ChangeToEndState()
+    {
+        state = ETurnActionButtonState.End;
+        button.image.color = endTurnColor;
+        buttonText.text = TURN_ACTION_END;
+    }
+    
     public void SetInteractivity(bool interactible)
     {
         if(button != null)

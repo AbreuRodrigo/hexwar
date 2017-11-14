@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    private const string TURN_ACTION_SKIP = "Skip Turn";
-    private const string TURN_ACTION_END = "End Turn";
-
     [Header("Components")]
     public ScreenFader screenFader;
 
@@ -16,9 +13,11 @@ public class UIManager : MonoBehaviour
     public Text playerTroopText;
     public Text playerLevelText;
     public Text currentTurnText;
+    public Text turnTimer;
 
     [Header("Buttons")]
     public UIButton turnActionBtn;
+    public Button moveMapBtn;
 
     [Header("Images")]
     public Image screenBlocker;
@@ -32,13 +31,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdatePlayerUI(Player player)
+    public void UpdateTopUI(Player player, int currentTurn)
     {
         if(player != null)
         {
             SetPlayerActionsUI(player.actions.ToString());
             SetPlayerTroopUI(player.troop.ToString());
             SetPlayerLevelUI(player.level.ToString());
+            SetCurrentTurnUI(currentTurn.ToString());
         }
     }
 
@@ -61,31 +61,45 @@ public class UIManager : MonoBehaviour
     {
         SetTextUIValue(currentTurnText, "Turn: ", turn);
     }
-
-    public void UpdateInterfaceByGamePhase(EGamePhase phase)
+    
+    public void UpdateUiForMaintenancePhase()
     {
-        switch (phase)
-        {                
-            case EGamePhase.MaintenancePhase:
-                screenBlocker.gameObject.SetActive(false);
-                turnActionBtn.gameObject.SetActive(true);
-                turnActionBtn.SetInteractivity(true);
-                turnActionBtn.SetText(TURN_ACTION_SKIP);
-                break;
-            case EGamePhase.CombatOrExplorationPhase:
-                screenBlocker.gameObject.SetActive(false);
-                turnActionBtn.gameObject.SetActive(true);
-                turnActionBtn.SetInteractivity(true);
-                turnActionBtn.SetText(TURN_ACTION_SKIP);
-                break;
-            case EGamePhase.ClearPhase:
-                turnActionBtn.SetText(TURN_ACTION_END);
-                break;
-            case EGamePhase.WaitPhase:
-                turnActionBtn.gameObject.SetActive(false);
-                screenBlocker.gameObject.SetActive(true);
-                break;
-        }
+        screenBlocker.gameObject.SetActive(false);
+        turnActionBtn.gameObject.SetActive(true);
+        turnActionBtn.SetInteractivity(true);
+        turnActionBtn.ChangeToSkipState();
+    }
+
+    public void UpdateUiForCombatOrExplorationPhase()
+    {
+        screenBlocker.gameObject.SetActive(false);
+        turnActionBtn.gameObject.SetActive(true);
+        turnActionBtn.SetInteractivity(true);
+        turnActionBtn.ChangeToSkipState();
+        turnTimer.gameObject.SetActive(true);
+        moveMapBtn.gameObject.SetActive(true);
+    }
+
+    public void UpdateUiForClearPhase()
+    {
+        turnActionBtn.ChangeToEndState();
+    }
+
+    public void UpdateUiForWaitPhase()
+    {
+        turnActionBtn.gameObject.SetActive(false);
+        screenBlocker.gameObject.SetActive(true);
+        turnTimer.gameObject.SetActive(false);
+        moveMapBtn.gameObject.SetActive(false);
+    }
+
+    public void SetTurnTimer(int timer)
+    {
+        string timerFormat1 = "00:0{0}";
+        string timerFormat2 = "00:{0}";
+        string format = timer >= 10 ? timerFormat2 : timerFormat1;
+
+        turnTimer.text = string.Format(format, timer);
     }
 
     private void SetTextUIValue(Text textUI, string label, string value)

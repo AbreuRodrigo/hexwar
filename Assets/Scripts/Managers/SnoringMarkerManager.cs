@@ -25,9 +25,11 @@ public class SnoringMarkerManager : Singleton<SnoringMarkerManager>
     {
         if(objectPool != null)
         {
-            foreach(PoolableObject po  in objectPool.usedObjects)
+            int count = objectPool.usedObjects.Count;
+
+            for (int i = 0; i < count; i++)
             {
-                objectPool.ReturnObjectToPool(po);
+                objectPool.ReturnObjectToPool(objectPool.usedObjects.First.Value);
             }
         }
     }

@@ -251,10 +251,49 @@ public class Hexagon : MonoBehaviour
         return ENeighborPosition.None;
     }
 
+    public bool TestIsNeighbour(Hexagon other)
+    {
+        if(neighborStructure != null && other != null)
+        {
+            if(other.id == neighborStructure.topLeft)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.topMiddle)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.topRight)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.bottomLeft)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.bottomMiddle)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.bottomRight)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void ChangeToBorderFoggedState()
     {
         ChangeState(ELandState.BorderFooged);
         ActivateBorderFogSprite();
+    }
+
+    public void AddOneUnitToTroop()
+    {
+        troop++;
+        hud.SetTroop(troop);
     }
 
     private void ChangeState(ELandState state)
