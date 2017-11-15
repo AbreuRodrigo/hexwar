@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class PinchZoom : MonoBehaviour
+public class CameraPinchZoom : MonoBehaviour
 {
     public Camera mainCamera;
     public float perspectiveZoomSpeed = 0.01f;
@@ -15,7 +15,11 @@ public class PinchZoom : MonoBehaviour
     {
         mainCamera.orthographicSize = maxZoom;
 
-        LeanTween.value(gameObject, mainCamera.orthographicSize, minZoon, 1).setDelay(1).setEaseOutCirc().setOnUpdate(OnFirstZoom);
+        LeanTween.value(gameObject, mainCamera.orthographicSize, minZoon, 1)
+                 .setDelay(1)
+                 .setEaseOutCirc()
+                 .setOnUpdate(OnFirstZoom)
+                 .setOnComplete(NotifyFirstZoomHasFinished);
     }
 
     void Update()
@@ -31,6 +35,11 @@ public class PinchZoom : MonoBehaviour
                 ZoomViaMouse();
             }
         }
+    }
+
+    private void NotifyFirstZoomHasFinished()
+    {
+        GameManager.Instance.gameStateManager.ChangeToGameplayState();
     }
 
     private void OnFirstZoom(float value)

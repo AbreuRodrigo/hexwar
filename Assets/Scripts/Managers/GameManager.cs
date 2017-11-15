@@ -10,9 +10,15 @@ public class GameManager : Singleton<GameManager>
     public Player localPlayer;
     public TargetSelection targetSelection;
     public PreviewMove previewMove;
+    public GameStateManager gameStateManager;
 
     [Header("Opponents")]
     public List<Player> opponents;
+
+    public EGameState GameState
+    {
+        get { return gameStateManager.gameState; }
+    }
 
     [Header("Game Stats")]
     public int currentTurn = 1;
@@ -58,7 +64,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Began || Input.GetMouseButtonDown(0))
+        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Began || Input.GetMouseButtonUp(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
