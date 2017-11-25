@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     public int level;
     public Color playerColor;
     public int selectedHexagonId;
+    public string clientId;
 
     public void AddHexLand(Hexagon newHexLand)
     {

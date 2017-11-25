@@ -8,4 +8,5 @@ public class GameTemplate
     public EMapSize size;
     public int totalPlayers;
     public int currenPlayers;
+    public bool createdByLocalPlayer;
 }

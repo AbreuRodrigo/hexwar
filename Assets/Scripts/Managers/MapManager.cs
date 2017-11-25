@@ -38,10 +38,10 @@ public class MapManager : MonoBehaviour {
 
         gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
         {
-            { EMapSize.Small, new MapStructure(20, 40) },
-            { EMapSize.Medium, new MapStructure(50, 100) },
-            { EMapSize.Large, new MapStructure(110, 250) },
-            { EMapSize.Giant, new MapStructure(260, 500) }
+            { EMapSize.SMALL, new MapStructure(20, 40) },
+            { EMapSize.MEDIUM, new MapStructure(50, 100) },
+            { EMapSize.LARGE, new MapStructure(110, 250) },
+            { EMapSize.GIANT, new MapStructure(260, 500) }
         };
 
         if (groundSprites != null)

@@ -5,13 +5,51 @@ using UnityEngine;
 public class UILobbyManager : MonoBehaviour {
 
     public TableWidget gameTable;
-    
-    int counter;
+    public CreateGamePopUp createGamePopUp;
+
+    private static UILobbyManager instance;
+    public static UILobbyManager Instance
+    {
+        get { return instance; }
+    }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
 
     public void CreateGameBtnClick()
     {
-        counter++;
+        if(createGamePopUp != null)
+        {
+            createGamePopUp.gameObject.SetActive(true);
+        }
+    }
 
-        gameTable.AddRow("Game" + counter, EMapSize.Large, 1);
+    public void CreateNewGame(GameTemplatePayload gameTemplate)
+    {
+        if (gameTemplate != null)
+        {
+            EMapSize mapSize = (EMapSize) System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize, true);
+            gameTable.AddRow(gameTemplate.gameName, mapSize, 1, true);
+        }
+    }
+
+    public string GetGameName()
+    {
+        if(createGamePopUp == null)
+        {
+            return "";
+        }
+
+        return createGamePopUp.GetGameName();
+    }
+
+    public string GetMapSize()
+    {
+        return createGamePopUp.GetMapSize();
     }
 }

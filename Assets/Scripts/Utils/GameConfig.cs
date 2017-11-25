@@ -17,4 +17,11 @@ public class GameConfig
     public static Color closedEnvironmentColor = new Color(0.69f, 0.76f, 1f);
     public static Color enemyColor = new Color(1f, 0.69f, 0.69f);
     public static Color enemyColorOnHover = new Color(1f, 0.69f, 0.69f);
+
+    //NETWORK
+    public class NetworkCode
+    {
+        public static short REGISTER_PLAYER = 1;
+        public static short CREATE_GAME = 2;
+    }
 }
