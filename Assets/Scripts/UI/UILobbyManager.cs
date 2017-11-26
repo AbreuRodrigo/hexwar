@@ -34,7 +34,7 @@ public class UILobbyManager : MonoBehaviour {
         if (gameTemplate != null)
         {
             EMapSize mapSize = (EMapSize) System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize, true);
-            gameTable.AddRow(gameTemplate.gameName, mapSize, 1, true);
+            gameTable.AddRow(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
         }
     }
 

@@ -117,7 +117,15 @@ public class NetworkManager : MonoBehaviour {
     {
         yield return new WaitForSecondsRealtime(3);
 
-        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, "");
+        PlayerTemplatePayload playerTemplate = new PlayerTemplatePayload();
+        playerTemplate.playerName = localPlayer.playerName;
+        playerTemplate.level = localPlayer.level;
+        playerTemplate.xp = localPlayer.xp;
+        playerTemplate.clientId = localPlayer.clientId;
+
+        string message = JsonUtility.ToJson(playerTemplate);
+
+        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, message);
     }
 
     IEnumerator KeepLoadingUntilRetrieveClientID()

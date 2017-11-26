@@ -25,11 +25,12 @@ public class TableWidget : MonoBehaviour {
         StartCoroutine(CheckCreateNewGameRow());
     }
 
-    public void AddRow(string gameName, EMapSize mapSize, int totalPlayers, bool createdByLocalPlayer)
+    public void AddRow(string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, bool createdByLocalPlayer)
     {
         gameTemplateRef.name = gameName;
         gameTemplateRef.size = mapSize;
-        gameTemplateRef.currenPlayers = totalPlayers;
+        gameTemplateRef.currenPlayers = currentPlayers;
+        gameTemplateRef.totalPlayers = totalPlayers;
         gameTemplateRef.createdByLocalPlayer = createdByLocalPlayer;
 
         createNewGameRow = true;
@@ -45,8 +46,8 @@ public class TableWidget : MonoBehaviour {
             {                
                 GameObject newRow = Instantiate(tableRowPrefab, tableContent);
                 TableRow row = newRow.GetComponent<TableRow>();
-                row.SetInfo(rows, gameTemplateRef.name, gameTemplateRef.size, gameTemplateRef.currenPlayers, 
-                    rows % 2 == 0 ? evenRowColor : oddRowColor, gameTemplateRef.createdByLocalPlayer);
+                row.SetInfo(rows, gameTemplateRef.name, gameTemplateRef.size, gameTemplateRef.currenPlayers,
+                    gameTemplateRef.totalPlayers, rows % 2 == 0 ? evenRowColor : oddRowColor, gameTemplateRef.createdByLocalPlayer);
 
                 rows++;
 

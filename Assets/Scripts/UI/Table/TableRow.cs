@@ -14,7 +14,7 @@ public class TableRow : MonoBehaviour {
 
     private GameTemplate gameTemplate;
     
-    public void SetInfo(int id, string gameName, EMapSize mapSize, int totalPlayers, Color bgColor, bool createdByLocalPlayer)
+    public void SetInfo(int id, string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, Color bgColor, bool createdByLocalPlayer)
     {
         if(gameTemplate == null)
         {
@@ -23,7 +23,7 @@ public class TableRow : MonoBehaviour {
 
         gameTemplate.name = gameName;
         gameTemplate.size = mapSize;
-        gameTemplate.currenPlayers = 0;
+        gameTemplate.currenPlayers = currentPlayers;
         gameTemplate.totalPlayers = totalPlayers;
         gameTemplate.createdByLocalPlayer = createdByLocalPlayer;
 

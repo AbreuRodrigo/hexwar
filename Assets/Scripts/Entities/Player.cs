@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     public int troop = 7;
     public int totalHexLands = 0;
     public int level;
+    public long xp;
     public Color playerColor;
     public int selectedHexagonId;
     public string clientId;
