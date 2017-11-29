@@ -15,14 +15,16 @@ public class TableWidget : MonoBehaviour {
     public Color evenRowColor;
     public Color oddRowColor;
 
-    private int rows = 0;
-
     private bool createNewGameRow = false;
     private GameTemplate gameTemplateRef = new GameTemplate();
+
+    private Queue<GameTemplate> gameQueue = new Queue<GameTemplate>();
+    private bool dequeuing = false;
 
     private void Start()
     {
         StartCoroutine(CheckCreateNewGameRow());
+        StartCoroutine(DequeueRows());
     }
 
     public void AddRow(string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, bool createdByLocalPlayer)
@@ -36,13 +38,50 @@ public class TableWidget : MonoBehaviour {
         createNewGameRow = true;
     }
 
+    public void EnqueueRowItem(string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, bool createdByLocalPlayer)
+    {
+        GameTemplate gameTemplate = new GameTemplate();
+        gameTemplate.name = gameName;
+        gameTemplate.size = mapSize;
+        gameTemplate.currenPlayers = currentPlayers;
+        gameTemplate.totalPlayers = totalPlayers;
+        gameTemplate.createdByLocalPlayer = createdByLocalPlayer;
+
+        gameQueue.Enqueue(gameTemplate);
+    }
+    
+    private IEnumerator DequeueRows()
+    {
+        if(!dequeuing)
+        {
+            dequeuing = true;
+            int rows = 0;
+
+            while (true)
+            {
+                if (gameQueue.Count > 0)
+                {
+                    GameTemplate gt = gameQueue.Dequeue();
+                    GameObject newRow = Instantiate(tableRowPrefab, tableContent);
+                    TableRow row = newRow.GetComponent<TableRow>();
+                    row.SetInfo(rows, gt.name, gameTemplateRef.size, gt.currenPlayers,
+                        gt.totalPlayers, rows % 2 == 0 ? evenRowColor : oddRowColor, gt.createdByLocalPlayer);
+
+                    rows++;
+                }
+
+                yield return null;
+            }
+        }
+    }
+
     private IEnumerator CheckCreateNewGameRow()
     {
-        while(true)
-        {
-            yield return new WaitForSecondsRealtime(3);
+        int rows = 0;
 
-            if(createNewGameRow)
+        while (true)
+        {
+            if (createNewGameRow)
             {                
                 GameObject newRow = Instantiate(tableRowPrefab, tableContent);
                 TableRow row = newRow.GetComponent<TableRow>();
@@ -53,6 +92,8 @@ public class TableWidget : MonoBehaviour {
 
                 createNewGameRow = false;
             }
+
+            yield return null;
         }        
     }
 }

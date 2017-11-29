@@ -46,7 +46,9 @@ public class NetworkManager : MonoBehaviour {
         networkResponse = new Dictionary<short, ServerResponse>()
         {
             { GameConfig.NetworkCode.REGISTER_PLAYER, OnRegisterPlayer },
-            { GameConfig.NetworkCode.CREATE_GAME, OnCreateGame }
+            { GameConfig.NetworkCode.CREATE_GAME, OnCreateGame },
+            { GameConfig.NetworkCode.JOIN_GAME, OnJoinGame },
+            { GameConfig.NetworkCode.RETRIEVE_GAMES, OnRetriveGames },
         };
 
         Initialize();        
@@ -102,6 +104,8 @@ public class NetworkManager : MonoBehaviour {
         }
 
         Debug.Log("OnRegisterPlayer: " + message);
+
+        RetriveGameList();
     }
     
     private void OnCreateGame(string message)
@@ -111,6 +115,31 @@ public class NetworkManager : MonoBehaviour {
         UILobbyManager.Instance.CreateNewGame(gameTemplatePayload);
 
         Debug.Log("OnCreateGame: " + gameTemplatePayload);
+    }
+
+    private void OnJoinGame(string message)
+    {
+        Debug.Log("OnJoinGame: " + message);
+    }
+
+    private void OnRetriveGames(string message)
+    {
+        GameListTemplatePayload gameListPayload = JsonUtility.FromJson<GameListTemplatePayload>(message);
+
+        foreach(GameTemplatePayload game in gameListPayload.games)
+        {
+            UILobbyManager.Instance.EnqueueRowsItem(game);
+        }
+    }
+
+    private void RetriveGameList()
+    {
+        PlayerTemplatePayload playerTemplatePayload = new PlayerTemplatePayload();
+        playerTemplatePayload.clientId = localPlayer.clientId;
+        
+        string jsonStr = JsonUtility.ToJson(playerTemplatePayload);
+
+        SendPayload(GameConfig.NetworkCode.RETRIEVE_GAMES, jsonStr);
     }
 
     IEnumerator RequestClientId()

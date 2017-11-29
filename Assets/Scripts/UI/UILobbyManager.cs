@@ -38,6 +38,15 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    public void EnqueueRowsItem(GameTemplatePayload gameTemplate)
+    {
+        if (gameTemplate != null)
+        {
+            EMapSize mapSize = (EMapSize)System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize, true);
+            gameTable.EnqueueRowItem(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
+        }
+    }
+    
     public string GetGameName()
     {
         if(createGamePopUp == null)
