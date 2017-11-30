@@ -11,9 +11,15 @@ public class TableRow : MonoBehaviour {
     public Text mapSize;
     public Text totalPlayers;
     public Image bgImage;
+    public Button myButtonBehaviour;
 
     private GameTemplate gameTemplate;
-    
+
+    public string GameName
+    {
+        get { return gameName.text; }
+    }
+
     public void SetInfo(int id, string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, Color bgColor, bool createdByLocalPlayer)
     {
         if(gameTemplate == null)

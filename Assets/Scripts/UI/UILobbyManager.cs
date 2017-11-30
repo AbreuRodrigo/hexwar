@@ -6,6 +6,7 @@ public class UILobbyManager : MonoBehaviour {
 
     public TableWidget gameTable;
     public CreateGamePopUp createGamePopUp;
+    public JoinConfirmPopUp joinConfirmPopUp;
 
     private static UILobbyManager instance;
     public static UILobbyManager Instance
@@ -29,11 +30,19 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    public void JoinGameBtnClick()
+    {
+        if(joinConfirmPopUp != null)
+        {
+            joinConfirmPopUp.gameObject.SetActive(true);
+        }
+    }
+
     public void CreateNewGame(GameTemplatePayload gameTemplate)
     {
         if (gameTemplate != null)
         {
-            EMapSize mapSize = (EMapSize) System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize, true);
+            EMapSize mapSize = (EMapSize) System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize);
             gameTable.AddRow(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
         }
     }
@@ -42,7 +51,7 @@ public class UILobbyManager : MonoBehaviour {
     {
         if (gameTemplate != null)
         {
-            EMapSize mapSize = (EMapSize)System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize, true);
+            EMapSize mapSize = (EMapSize)System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize);
             gameTable.EnqueueRowItem(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
         }
     }
@@ -60,5 +69,14 @@ public class UILobbyManager : MonoBehaviour {
     public string GetMapSize()
     {
         return createGamePopUp.GetMapSize();
+    }
+    
+    public void AddOnClickLogicsToTableRow(TableRow row)
+    {
+        row.myButtonBehaviour.onClick.RemoveAllListeners();
+        row.myButtonBehaviour.onClick.AddListener(() => {
+            JoinGameBtnClick();
+            joinConfirmPopUp.SetGameNameInTextBox(row.GameName);
+        });
     }
 }

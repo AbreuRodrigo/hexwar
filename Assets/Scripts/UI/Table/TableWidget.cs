@@ -64,8 +64,10 @@ public class TableWidget : MonoBehaviour {
                     GameTemplate gt = gameQueue.Dequeue();
                     GameObject newRow = Instantiate(tableRowPrefab, tableContent);
                     TableRow row = newRow.GetComponent<TableRow>();
-                    row.SetInfo(rows, gt.name, gameTemplateRef.size, gt.currenPlayers,
+                    row.SetInfo(rows, gt.name, gt.size, gt.currenPlayers,
                         gt.totalPlayers, rows % 2 == 0 ? evenRowColor : oddRowColor, gt.createdByLocalPlayer);
+
+                    UILobbyManager.Instance.AddOnClickLogicsToTableRow(row);
 
                     rows++;
                 }
@@ -87,6 +89,8 @@ public class TableWidget : MonoBehaviour {
                 TableRow row = newRow.GetComponent<TableRow>();
                 row.SetInfo(rows, gameTemplateRef.name, gameTemplateRef.size, gameTemplateRef.currenPlayers,
                     gameTemplateRef.totalPlayers, rows % 2 == 0 ? evenRowColor : oddRowColor, gameTemplateRef.createdByLocalPlayer);
+
+                UILobbyManager.Instance.AddOnClickLogicsToTableRow(row);
 
                 rows++;
 
