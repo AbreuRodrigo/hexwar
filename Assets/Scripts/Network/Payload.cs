@@ -3,12 +3,12 @@
 [XmlRoot("payload")]
 public class Payload
 {
-    [XmlElement("code")]
-    public short code { get; set; }
+    [XmlElement(ElementName = "code")]
+    public short code;
 
-    [XmlElement("message")]
-    public string message { get; set; }
+    [XmlElement(ElementName = "message")]
+    public string message = null;
 
-    [XmlElement("clientID")]
-    public string clientID { get; set; }
+    [XmlElement(ElementName = "clientID")]
+    public string clientID = null;
 }

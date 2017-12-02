@@ -12,6 +12,6 @@ public class GameLobbyManager : MonoBehaviour
 
         string jsonStr = JsonUtility.ToJson(gameTemplatePayload);
 
-        NetworkManager.Instance.SendPayload(GameConfig.NetworkCode.CREATE_GAME, jsonStr);
+        NetworkManager.Instance.SendPayload(GameConfig.NetworkCode.CREATE_GAME, jsonStr, string.Empty);
     }
 }

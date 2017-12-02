@@ -30,7 +30,9 @@ public class UDPSender
     {
         try
         {
-            string xmlString = ObjectToXml(payload, typeof(Payload));
+            string xmlString = Serialize<Payload>(payload);
+
+            xmlString = FixStringMessage(xmlString);
 
             byte[] data = Encoding.UTF8.GetBytes(xmlString);
             udpClient.Send(data, data.Length, remoteEndPoint);
@@ -61,5 +63,30 @@ public class UDPSender
 
             return textWriter.ToString();
         }
+    }
+
+    private static string Serialize<T>(T toSerialize)
+    {
+        XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+        StringWriter textWriter = new StringWriter();
+
+        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+        ns.Add("", "");
+
+        xmlSerializer.Serialize(textWriter, toSerialize, ns);
+        return textWriter.ToString();
+    }
+
+    private string FixStringMessage(string strMsg)
+    {
+        string cliendIdStr = "<clientID />";
+        string clientIdStrProper = "<clientID>null</clientID>";
+
+        if(strMsg.Contains(cliendIdStr))
+        {
+            return strMsg.Replace(cliendIdStr, clientIdStrProper);
+        }
+
+        return strMsg;
     }
 }

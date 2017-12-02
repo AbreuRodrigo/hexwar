@@ -74,12 +74,12 @@ public class NetworkManager : MonoBehaviour {
         }
     }
 
-    public void SendPayload(short code, string message)
+    public void SendPayload(short code, string message, string cliendId)
     {
         Payload p = new Payload();
         p.code = code;
         p.message = message;
-        p.clientID = localPlayer.clientId;
+        p.clientID = cliendId;
 
         sender.SendPayload(p);
     }
@@ -139,7 +139,7 @@ public class NetworkManager : MonoBehaviour {
         
         string jsonStr = JsonUtility.ToJson(playerTemplatePayload);
 
-        SendPayload(GameConfig.NetworkCode.RETRIEVE_GAMES, jsonStr);
+        SendPayload(GameConfig.NetworkCode.RETRIEVE_GAMES, jsonStr, string.Empty);
     }
 
     IEnumerator RequestClientId()
@@ -154,7 +154,7 @@ public class NetworkManager : MonoBehaviour {
 
         string message = JsonUtility.ToJson(playerTemplate);
 
-        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, message);
+        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, message, localPlayer.clientId);
     }
 
     IEnumerator KeepLoadingUntilRetrieveClientID()
