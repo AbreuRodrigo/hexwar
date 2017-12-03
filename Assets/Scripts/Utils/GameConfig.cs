@@ -25,5 +25,6 @@ public class GameConfig
         public static short CREATE_GAME = 2;
         public static short JOIN_GAME = 3;
         public static short RETRIEVE_GAMES = 4;
+        public static short SEARCH_GAME = 5;
     }
 }

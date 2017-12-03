@@ -36,7 +36,7 @@ public class GameManager : Singleton<GameManager>
         
     void Start()
     {
-        Random.InitState((int)System.Environment.TickCount);
+        Random.InitState((int) GameSetup.mapSeed);
 
         phaseOrder = new Dictionary<EGamePhase, EGamePhase>()
         {

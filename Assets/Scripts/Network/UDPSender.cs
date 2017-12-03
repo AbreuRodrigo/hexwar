@@ -13,13 +13,15 @@ using System.Xml.Serialization;
 
 public class UDPSender
 {
-    private IPEndPoint remoteEndPoint;
+    private IPEndPoint localEndPoint = null;
+    private IPEndPoint remoteEndPoint = null;
     private IPAddress ip;
     private int port;
     private UdpClient udpClient;
     
-    public UDPSender(IPEndPoint remoteEndPoint)
+    public UDPSender(IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
     {
+        this.localEndPoint = localEndPoint;
         this.remoteEndPoint = remoteEndPoint;
         this.udpClient = new UdpClient();
         this.ip = remoteEndPoint.Address;
@@ -30,39 +32,35 @@ public class UDPSender
     {
         try
         {
-            string xmlString = Serialize<Payload>(payload);
-
-            xmlString = FixStringMessage(xmlString);
-
-            byte[] data = Encoding.UTF8.GetBytes(xmlString);
-            udpClient.Send(data, data.Length, remoteEndPoint);
+            string data = MountPayloadString(payload);
+            //data = FixStringMessage(data);
+            Send(data);
         }
         catch (Exception err)
         {
             Debug.Log(err.ToString());
         }
     }
-    
-    private string ObjectToXml(object obj, Type t)
+
+    public void Send(string message)
     {
-        XmlSerializer serializer = new XmlSerializer(t);
-        XmlWriterSettings settings = new XmlWriterSettings();
-        settings.Encoding = new UnicodeEncoding(false, false);
-        settings.Indent = false;
-        settings.OmitXmlDeclaration = true;
+        byte[] messageData = System.Text.Encoding.UTF8.GetBytes(message);
 
-        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-        ns.Add("", "");
+        UdpClient sender = new UdpClient();
+        sender.ExclusiveAddressUse = false;
+        sender.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+        sender.Client.Bind(localEndPoint);
+        sender.Send(messageData, messageData.Length, remoteEndPoint);
+        sender.Close();
+    }
 
-        using (StringWriter textWriter = new StringWriter())
-        {
-            using (XmlWriter xmlWriter = XmlWriter.Create(textWriter, settings))
-            {
-                serializer.Serialize(xmlWriter, obj, ns);
-            }
+    private string MountPayloadString(Payload payload)
+    {
+        string payloadStr = "<payload><code>{0}</code><message>{1}</message><clientID>{2}</clientID></payload>";
 
-            return textWriter.ToString();
-        }
+        payloadStr = string.Format(payloadStr, payload.code, payload.message, payload.clientID);
+
+        return payloadStr;
     }
 
     private static string Serialize<T>(T toSerialize)

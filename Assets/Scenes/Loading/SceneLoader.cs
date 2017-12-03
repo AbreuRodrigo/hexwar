@@ -27,7 +27,6 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-
     void WaitForLoader()
     {
         StartCoroutine(LoadNewScene());

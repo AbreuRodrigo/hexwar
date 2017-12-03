@@ -1,12 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UILobbyManager : MonoBehaviour {
 
     public TableWidget gameTable;
     public CreateGamePopUp createGamePopUp;
     public JoinConfirmPopUp joinConfirmPopUp;
+    public Dropdown gameMapDropdown;
+    public LoadingIcon loading;
+
+    private bool isSearchingGame = false;
 
     private static UILobbyManager instance;
     public static UILobbyManager Instance
@@ -22,6 +27,36 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    public void ShowLoading()
+    {
+        if(loading != null)
+        {
+            loading.Show();
+        }
+    }
+
+    public void HideLoading()
+    {
+        if (loading != null)
+        {
+            loading.Hide();
+        }
+    }
+
+    public void SearchGame()
+    {
+        if(gameMapDropdown != null && !isSearchingGame)
+        {
+            ShowLoading();
+
+            isSearchingGame = true;
+            int selectedOption = gameMapDropdown.value;
+
+            NetworkManager.Instance.SearchGame(selectedOption);            
+        }
+    }
+
+    [System.Obsolete]
     public void CreateGameBtnClick()
     {
         if(createGamePopUp != null)
@@ -30,6 +65,7 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    [System.Obsolete]
     public void JoinGameBtnClick()
     {
         if(joinConfirmPopUp != null)
@@ -38,6 +74,7 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    [System.Obsolete]
     public void CreateNewGame(GameTemplatePayload gameTemplate)
     {
         if (gameTemplate != null)
@@ -78,5 +115,22 @@ public class UILobbyManager : MonoBehaviour {
             JoinGameBtnClick();
             joinConfirmPopUp.SetGameNameInTextBox(row.GameName);
         });
+    }
+
+    public void StartLoadingScreen()
+    {
+        StartCoroutine(StartLoadingScreenRoutine());
+    }
+
+    IEnumerator StartLoadingScreenRoutine()
+    {
+        UILobbyManager.Instance.ShowLoading();
+
+        while (NetworkManager.Instance.isLoading)
+        {
+            yield return null;
+        }
+
+        UILobbyManager.Instance.HideLoading();
     }
 }

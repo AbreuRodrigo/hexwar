@@ -9,4 +9,5 @@ public class GameTemplate
     public int totalPlayers;
     public int currenPlayers;
     public bool createdByLocalPlayer;
+    public long mapSeed;
 }

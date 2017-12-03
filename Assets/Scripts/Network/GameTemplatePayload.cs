@@ -7,4 +7,5 @@ public class GameTemplatePayload
     public int level;
     public int maxPlayers;
     public int currentPlayers;
+    public long mapSeed;
 }

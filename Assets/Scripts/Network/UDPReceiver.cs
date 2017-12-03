@@ -17,54 +17,93 @@ public class UDPReceiver
 {
     private const int RECEIVING_PORT = 11777;
 
-    private Thread receiveThread;
-    private IPEndPoint remoteEndPoint;
+    private Thread listenThread = null;
     private UdpClient udpClient;
-    private bool running = true;
 
+    private IPEndPoint localEP = null;
+    private IPEndPoint remoteEP = null;
+    private IAsyncResult currentAsyncResult = null;
 
-    public UDPReceiver(IPEndPoint remoteEndPoint)
+    public bool Initialized { get; set; }
+
+    private readonly object clientLock = new object();
+
+    private class UdpState
     {
-        this.remoteEndPoint = remoteEndPoint;
+        public IPEndPoint e;
+        public UdpClient c;
+
+        public UdpState(IPEndPoint e, UdpClient c)
+        {
+            this.e = e;
+            this.c = c;
+        }
+    }
+
+    public UDPReceiver(IPEndPoint localEP, IPEndPoint remoteEP)
+    {
+        this.localEP = localEP;
+        this.remoteEP = remoteEP;
+        this.Initialized = false;
         Init();
     }
 
     public void StopReceiving()
     {
-        running = false;
-        receiveThread.Abort();
+        listenThread.Abort();
         udpClient.Close();
     }
 
-    private void Init()
+    public void Init()
     {
-        receiveThread = new Thread(new ThreadStart(ReceiveData));
-        receiveThread.Start();
+        if (!Initialized)
+        {
+            Initialized = true;
+            listenThread = new Thread(StartListening);
+            listenThread.Start();
+        }
     }
 
-    private void ReceiveData()
+    private void StartListening()
     {
-        IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, RECEIVING_PORT);
-        udpClient = new UdpClient(anyIP);
-        byte[] data = null;
-        Response response = null;
-
-        while (running)
+        lock (clientLock)
         {
-            try
+            if (udpClient != null)
             {
-                data = udpClient.Receive(ref anyIP);
-                response = ObjectFromByteArray(data);
+                currentAsyncResult = null;
+                udpClient.Close();
+            }
+            udpClient = new UdpClient();
+            udpClient.ExclusiveAddressUse = false;
+            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            udpClient.Client.Bind(localEP);
 
+            var s = new UdpState(localEP, udpClient);
+            currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+        }
+    }
+
+    private void ReceiveCallback(IAsyncResult ar)
+    {
+        if (ar == currentAsyncResult)
+        {
+            UdpClient c = (UdpClient)((UdpState)(ar.AsyncState)).c;
+            IPEndPoint e = (IPEndPoint)((UdpState)(ar.AsyncState)).e;
+
+            Response response = null;
+            Byte[] data = c.EndReceive(ar, ref e);
+
+            if (data.Length > 0)
+            {
+                response = ObjectFromByteArray(data);
                 NetworkManager.Instance.ProcessResponse(response);
             }
-            catch (Exception err)
-            {
-                Debug.Log(err.ToString());
-            }
-        }
 
-        Debug.Log("Receiver ended successfully...");
+            UdpState s = new UdpState(e, c);
+            currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+
+            Debug.Log("Receiver ended successfully...");
+        }
     }
 
     private Response ObjectFromByteArray(byte[] data)
