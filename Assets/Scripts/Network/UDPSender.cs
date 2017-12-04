@@ -33,7 +33,6 @@ public class UDPSender
         try
         {
             string data = MountPayloadString(payload);
-            //data = FixStringMessage(data);
             Send(data);
         }
         catch (Exception err)
@@ -73,18 +72,5 @@ public class UDPSender
 
         xmlSerializer.Serialize(textWriter, toSerialize, ns);
         return textWriter.ToString();
-    }
-
-    private string FixStringMessage(string strMsg)
-    {
-        string cliendIdStr = "<clientID />";
-        string clientIdStrProper = "<clientID>null</clientID>";
-
-        if(strMsg.Contains(cliendIdStr))
-        {
-            return strMsg.Replace(cliendIdStr, clientIdStrProper);
-        }
-
-        return strMsg;
     }
 }

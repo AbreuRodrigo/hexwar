@@ -10,6 +10,8 @@ public class UILobbyManager : MonoBehaviour {
     public JoinConfirmPopUp joinConfirmPopUp;
     public Dropdown gameMapDropdown;
     public LoadingIcon loading;
+    public SearchingIcon searching;
+    public BlinkingText waitingOpponents;
 
     private bool isSearchingGame = false;
 
@@ -43,45 +45,56 @@ public class UILobbyManager : MonoBehaviour {
         }
     }
 
+    public void ShowSearching()
+    {
+        if (searching != null)
+        {
+            searching.Show();
+        }
+    }
+
+    public void HideSearching()
+    {
+        if(searching != null)
+        {
+            searching.Hide();
+        }
+    }
+
+    public void ShowWaitingOpponentns()
+    {
+        if (waitingOpponents != null)
+        {
+            waitingOpponents.Show();
+        }
+    }
+
+    public void HideWaitingOpponentns()
+    {
+        if (waitingOpponents != null)
+        {
+            waitingOpponents.Hide();
+        }
+    }
+
     public void SearchGame()
     {
-        if(gameMapDropdown != null && !isSearchingGame)
-        {
-            ShowLoading();
-
-            isSearchingGame = true;
-            int selectedOption = gameMapDropdown.value;
-
-            NetworkManager.Instance.SearchGame(selectedOption);            
-        }
+        StartCoroutine(StartSearchingGameRoutine());
     }
 
     [System.Obsolete]
     public void CreateGameBtnClick()
     {
-        if(createGamePopUp != null)
-        {
-            createGamePopUp.gameObject.SetActive(true);
-        }
     }
 
     [System.Obsolete]
     public void JoinGameBtnClick()
     {
-        if(joinConfirmPopUp != null)
-        {
-            joinConfirmPopUp.gameObject.SetActive(true);
-        }
     }
 
     [System.Obsolete]
     public void CreateNewGame(GameTemplatePayload gameTemplate)
     {
-        if (gameTemplate != null)
-        {
-            EMapSize mapSize = (EMapSize) System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize);
-            gameTable.AddRow(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
-        }
     }
 
     public void EnqueueRowsItem(GameTemplatePayload gameTemplate)
@@ -122,15 +135,30 @@ public class UILobbyManager : MonoBehaviour {
         StartCoroutine(StartLoadingScreenRoutine());
     }
 
+    IEnumerator StartSearchingGameRoutine()
+    {
+        if (gameMapDropdown != null && !isSearchingGame)
+        {
+            ShowSearching();
+
+            isSearchingGame = true;
+            int selectedOption = gameMapDropdown.value;
+
+            yield return new WaitForSecondsRealtime(3);
+
+            NetworkManager.Instance.SearchGame(selectedOption);
+        }
+    }
+
     IEnumerator StartLoadingScreenRoutine()
     {
-        UILobbyManager.Instance.ShowLoading();
+        Instance.ShowLoading();
 
         while (NetworkManager.Instance.isLoading)
         {
             yield return null;
         }
 
-        UILobbyManager.Instance.HideLoading();
+        Instance.HideLoading();
     }
 }

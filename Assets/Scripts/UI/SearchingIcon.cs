@@ -3,25 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoadingIcon : MonoBehaviour {
-
+public class SearchingIcon : MonoBehaviour
+{
     public Image blockBakaground;
-    public Image loadingIcon;
-    
-    void Start()
-    {
-        LeanTween.rotateZ(gameObject, 180, 1).setLoopType(LeanTweenType.linear);
-    }
-
+    public Image icon;
+ 
     public void Show()
     {
         blockBakaground.gameObject.SetActive(true);
-        loadingIcon.enabled = true;        
+        icon.enabled = true;
+        LeanTween.moveLocalY(gameObject, 45, 1).setLoopPingPong();
+        LeanTween.rotateZ(gameObject, 10, 1).setLoopPingPong();
     }
 
     public void Hide()
     {
         blockBakaground.gameObject.SetActive(false);
-        loadingIcon.enabled = false;
+        icon.enabled = false;
     }
 }

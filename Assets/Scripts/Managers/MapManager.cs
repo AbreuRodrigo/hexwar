@@ -27,10 +27,8 @@ public class MapManager : MonoBehaviour {
 
     private Hexagon hexRef = null;
     private Hexagon neighborHexagonRef = null;
-    private Hexagon neighborsNeighborHexagonRef = null;
 
     private Dictionary<EMapSize, MapStructure> gameMapDictionary = null;
-    private MapStructure mapStructureRef = null;
 
     void Awake()
     {
@@ -38,10 +36,10 @@ public class MapManager : MonoBehaviour {
 
         gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
         {
-            { EMapSize.SMALL, new MapStructure(20, 40) },
-            { EMapSize.MEDIUM, new MapStructure(50, 100) },
-            { EMapSize.LARGE, new MapStructure(110, 250) },
-            { EMapSize.GIANT, new MapStructure(260, 500) }
+            { EMapSize.SMALL, new MapStructure(40) },
+            { EMapSize.MEDIUM, new MapStructure(100) },
+            { EMapSize.LARGE, new MapStructure(250) },
+            { EMapSize.GIANT, new MapStructure(500) }
         };
 
         if (groundSprites != null)
@@ -162,9 +160,7 @@ public class MapManager : MonoBehaviour {
     {
         if (gameMapDictionary != null)
         {
-            mapStructureRef = gameMapDictionary[mapSize];
-
-            return Random.Range(mapStructureRef.min, mapStructureRef.max + 1);
+            return gameMapDictionary[mapSize].max;
         }
 
         return 0;

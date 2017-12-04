@@ -9,6 +9,7 @@ public class MapGenerator : MonoBehaviour
     private Hexagon hexRef = null;
     
     private int hexGenerationCount = 0;
+    private int maxIndex = 0;
 
     [Header("Prefabs")]
     public GameObject hexagonPrefab;
@@ -23,6 +24,10 @@ public class MapGenerator : MonoBehaviour
 
     public void CreateMap(int size)
     {
+        maxIndex = listOfNeighborPosition.Length;
+
+        Random.InitState((int)GameSetup.mapSeed);
+
         if (hexagonPrefab != null && mapParent != null)
         {
             Hexagon hexBase = CreateNewHexagon(0, 0, 0);
@@ -139,7 +144,7 @@ public class MapGenerator : MonoBehaviour
 
     private ENeighborPosition RandomizeNeighborPosition()
     {
-        int rand = Random.Range(0, listOfNeighborPosition.Length);
+        int rand = Random.Range(0, maxIndex);
         return listOfNeighborPosition[rand];
     }
 

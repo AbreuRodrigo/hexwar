@@ -7,6 +7,8 @@ public class GameConfig
 
     public const string PLAYER_HEXAGON_NAME = "HexagonPlayerBase";
 
+    public const string PLAYER_UNIQUE_ID = "hexwar_player_unique_id";
+
     public static Color player1Color = new Color(0.69f, 1f, 0.69f);
     public static Color player1ColorOnHover = new Color(0.15f, 1f, 0.27f);
 
@@ -22,9 +24,7 @@ public class GameConfig
     public class NetworkCode
     {
         public static short REGISTER_PLAYER = 1;
-        public static short CREATE_GAME = 2;
-        public static short JOIN_GAME = 3;
-        public static short RETRIEVE_GAMES = 4;
-        public static short SEARCH_GAME = 5;
+        public static short SEARCH_GAME = 2;
+        public static short START_GAMEPLAY = 3;
     }
 }

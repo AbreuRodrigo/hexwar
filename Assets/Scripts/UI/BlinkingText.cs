@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoadingIcon : MonoBehaviour {
-
+public class BlinkingText : MonoBehaviour {
     public Image blockBakaground;
-    public Image loadingIcon;
-    
+    public Text text;
+
     void Start()
     {
-        LeanTween.rotateZ(gameObject, 180, 1).setLoopType(LeanTweenType.linear);
+        LeanTween.textColor(text.rectTransform, new Color(0.25f, 0.25f, 0.25f), 1).setLoopPingPong();
     }
 
     public void Show()
     {
         blockBakaground.gameObject.SetActive(true);
-        loadingIcon.enabled = true;        
+        text.enabled = true;        
     }
 
     public void Hide()
     {
         blockBakaground.gameObject.SetActive(false);
-        loadingIcon.enabled = false;
+        text.enabled = false;
     }
 }

@@ -16,16 +16,18 @@ public class NetworkManager : MonoBehaviour {
     private IPEndPoint localEndPoint = null;
     private IPEndPoint remoteEndPoint = null;
 
-    public string ip = "127.0.0.1";
-    public int port = 7777;
+    [Header("Remote Connection")]
+    public string remoteIp = "192.168.0.11";
+    public int remotePort = 7777;
+
+    [Header("Local Connection")]
+    public string localIp = "0.0.0.0";
     public int localPort = 11777;
+
     public Player localPlayer;
-    public int responseSearchGame;
+    public bool isLoading = true;
 
     private Queue<Action> tasks = new Queue<Action>();
-    private string response;
-
-    public bool isLoading = false;
 
     private Dictionary<short, ServerResponse> networkResponse = null;
 
@@ -51,7 +53,6 @@ public class NetworkManager : MonoBehaviour {
     void Start()
     {
         Initialize();
-
         StartCoroutine(RequestClientId());
         StartCoroutine(ProcessTask());
 
@@ -60,23 +61,21 @@ public class NetworkManager : MonoBehaviour {
         networkResponse = new Dictionary<short, ServerResponse>()
         {
             { GameConfig.NetworkCode.REGISTER_PLAYER, OnRegisterPlayer },
-            { GameConfig.NetworkCode.CREATE_GAME, OnCreateGame },
-            { GameConfig.NetworkCode.JOIN_GAME, OnJoinGame },
-            { GameConfig.NetworkCode.RETRIEVE_GAMES, OnRetriveGames },
-            { GameConfig.NetworkCode.SEARCH_GAME, OnSearchedGame }
+            { GameConfig.NetworkCode.SEARCH_GAME, OnSearchedGame },
+            { GameConfig.NetworkCode.START_GAMEPLAY, OnStartGameplay }
         };
     }
 
     private void OnDestroy()
     {
         Debug.Log("Shutting down...");
-        //receiver.StopReceiving();
     }
 
     private void Initialize()
     {
-        localEndPoint = new IPEndPoint(IPAddress.Parse(ip), localPort);
-        remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+        //TODO REMOVE HARDCODE LATER
+        localEndPoint = new IPEndPoint(IPAddress.Parse(localIp), localPort);
+        remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIp), remotePort);
 
         if(sender == null)
         {
@@ -137,16 +136,6 @@ public class NetworkManager : MonoBehaviour {
         SendPayload(GameConfig.NetworkCode.SEARCH_GAME, data, localPlayer.clientId);
     }
 
-    public void RetriveGameList()
-    {
-        PlayerTemplatePayload playerTemplatePayload = new PlayerTemplatePayload();
-        playerTemplatePayload.clientId = localPlayer.clientId;
-        
-        string data = JsonUtility.ToJson(playerTemplatePayload);
-
-        SendPayload(GameConfig.NetworkCode.RETRIEVE_GAMES, data, string.Empty);
-    }
-
     private static string Serialize<T>(T toSerialize)
     {
         XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
@@ -178,15 +167,22 @@ public class NetworkManager : MonoBehaviour {
     {
         yield return new WaitForSecondsRealtime(3);
 
+        string cliendID = PlayerPrefs.GetString(GameConfig.PLAYER_UNIQUE_ID);
+
+        if(string.IsNullOrEmpty(cliendID))
+        {
+            cliendID = SystemInfo.deviceUniqueIdentifier;
+        }
+
         PlayerTemplatePayload playerTemplate = new PlayerTemplatePayload();
         playerTemplate.playerName = localPlayer.playerName;
         playerTemplate.level = localPlayer.level;
         playerTemplate.xp = localPlayer.xp;
-        playerTemplate.clientId = localPlayer.clientId;
+        playerTemplate.clientId = cliendID;
 
         string data = JsonUtility.ToJson(playerTemplate);
 
-        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, data, localPlayer.clientId);
+        SendPayload(GameConfig.NetworkCode.REGISTER_PLAYER, data, cliendID);
     }
 
     IEnumerator ProcessTask()
@@ -195,22 +191,19 @@ public class NetworkManager : MonoBehaviour {
         {
             if (tasks != null && tasks.Count > 0)
             {
-                Action action = tasks.Dequeue();
+                Action task = tasks.Dequeue();
 
-                if (action != null)
+                if (task != null)
                 {
-                    action.Invoke();
+                    task.Invoke();
                 }
             }
 
             yield return null;
         }        
     }
-
-
+    
     //RESPONSES
-
-
     public void OnRegisterPlayer(string message)
     {
         if (!localPlayer.clientId.Equals(message))
@@ -218,38 +211,16 @@ public class NetworkManager : MonoBehaviour {
             localPlayer.clientId = message;
         }
 
+        tasks.Enqueue(SaveLocalPlayerClientID);
+
+        isLoading = false;
+
         Debug.Log("OnRegisterPlayer: " + message);
-
-        NetworkManager.Instance.RetriveGameList();
     }
 
-    public void OnCreateGame(string message)
+    private void SaveLocalPlayerClientID()
     {
-        GameTemplatePayload gameTemplatePayload = JsonUtility.FromJson<GameTemplatePayload>(message);
-
-        UILobbyManager.Instance.CreateNewGame(gameTemplatePayload);
-
-        Debug.Log("OnCreateGame: " + gameTemplatePayload);
-    }
-
-    public void OnJoinGame(string message)
-    {
-        Debug.Log("OnJoinGame: " + message);
-    }
-
-    public void OnRetriveGames(string message)
-    {
-        GameListTemplatePayload gameListPayload = JsonUtility.FromJson<GameListTemplatePayload>(message);
-
-        foreach (GameTemplatePayload game in gameListPayload.games)
-        {
-            UILobbyManager.Instance.EnqueueRowsItem(game);
-        }
-    }
-
-    private void LoadGameScene()
-    {
-        SceneManager.LoadScene("Gameplay");
+        PlayerPrefs.SetString(GameConfig.PLAYER_UNIQUE_ID, localPlayer.clientId);
     }
 
     public void OnSearchedGame(string message)
@@ -259,7 +230,28 @@ public class NetworkManager : MonoBehaviour {
             GameTemplatePayload gameTemplatePayload = JsonUtility.FromJson<GameTemplatePayload>(message);
             GameSetup.mapSeed = gameTemplatePayload.mapSeed;
 
-            tasks.Enqueue(LoadGameScene);
+            tasks.Enqueue(WaitForOpponentsTask);
         }
+    }
+
+    public void OnStartGameplay(string message)
+    {
+        if (message != null && "0".Equals(message))
+        { 
+            tasks.Enqueue(LoadGameSceneTask);
+        }
+    }
+
+    //TASKS
+    private void LoadGameSceneTask()
+    {
+        SceneManager.LoadScene("Gameplay");
+    }
+
+    private void WaitForOpponentsTask()
+    {
+        UILobbyManager.Instance.HideSearching();
+        UILobbyManager.Instance.ShowLoading();
+        UILobbyManager.Instance.ShowWaitingOpponentns();
     }
 }
