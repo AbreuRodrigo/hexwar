@@ -47,6 +47,7 @@ public class NetworkManager : MonoBehaviour {
         if(instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(this);
         }
     }
 
@@ -62,7 +63,8 @@ public class NetworkManager : MonoBehaviour {
         {
             { GameConfig.NetworkCode.REGISTER_PLAYER, OnRegisterPlayer },
             { GameConfig.NetworkCode.SEARCH_GAME, OnSearchedGame },
-            { GameConfig.NetworkCode.START_GAMEPLAY, OnStartGameplay }
+            { GameConfig.NetworkCode.START_GAMEPLAY, OnStartGameplay },
+            { GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, OnReceiveTurnToken }
         };
     }
 
@@ -134,6 +136,16 @@ public class NetworkManager : MonoBehaviour {
         string data = JsonUtility.ToJson(searchPayload);
 
         SendPayload(GameConfig.NetworkCode.SEARCH_GAME, data, localPlayer.clientId);
+    }
+
+    public void PassTurnTokenToNextPlayer()
+    {
+        PassTurnTemplatePayload payload = new PassTurnTemplatePayload();
+        payload.playerGameName = GameSetup.currentGame;
+        payload.playerTurnIndex = GameSetup.localPlayerTurnId;
+
+        string data = JsonUtility.ToJson(payload);
+        SendPayload(GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, data, localPlayer.clientId);
     }
 
     private static string Serialize<T>(T toSerialize)
@@ -228,7 +240,9 @@ public class NetworkManager : MonoBehaviour {
         if (message != null)
         {
             GameTemplatePayload gameTemplatePayload = JsonUtility.FromJson<GameTemplatePayload>(message);
+            PlayerListTemplatePayload playerTemplatePayload = JsonUtility.FromJson<PlayerListTemplatePayload>(message);
             GameSetup.mapSeed = gameTemplatePayload.mapSeed;
+            GameSetup.currentGame = gameTemplatePayload.gameName;
 
             tasks.Enqueue(WaitForOpponentsTask);
         }
@@ -236,9 +250,18 @@ public class NetworkManager : MonoBehaviour {
 
     public void OnStartGameplay(string message)
     {
-        if (message != null && "0".Equals(message))
-        { 
+        if (!string.IsNullOrEmpty(message))
+        {
+            GameSetup.localPlayerTurnId = short.Parse(message);
             tasks.Enqueue(LoadGameSceneTask);
+        }
+    }
+
+    public void OnReceiveTurnToken(string message)
+    {
+        if (!string.IsNullOrEmpty(message))
+        {
+            tasks.Enqueue(ReceiveTurnTokenTask);
         }
     }
 
@@ -253,5 +276,10 @@ public class NetworkManager : MonoBehaviour {
         UILobbyManager.Instance.HideSearching();
         UILobbyManager.Instance.ShowLoading();
         UILobbyManager.Instance.ShowWaitingOpponentns();
+    }
+
+    private void ReceiveTurnTokenTask()
+    {
+        GameManager.Instance.ReceiveTurnToken();
     }
 }

@@ -48,9 +48,18 @@ public class GameManager : Singleton<GameManager>
         {
             uiManager.UpdateTopUI(localPlayer, currentTurn);
             uiManager.SetCurrentTurnUI(currentTurn.ToString());
+            uiManager.SetPlayerLevelUI(GameSetup.localPlayerTurnId.ToString());
         }
 
-        DoPhaseTransition();
+        if(GameSetup.localPlayerTurnId == 0)
+        {
+            DoTransitionToCombatExplorationPhase();
+        }
+        else
+        {
+            currentPhase = EGamePhase.ClearPhase;
+            DoPhaseTransition();
+        }
     }
 
     private void Update()
@@ -315,8 +324,6 @@ public class GameManager : Singleton<GameManager>
         currentTurn++;
 
         DoPhaseTransition();
-
-        uiManager.UpdateTopUI(localPlayer, currentTurn);
     }
     
     private void DoPhaseTransition()
@@ -342,9 +349,9 @@ public class GameManager : Singleton<GameManager>
         localPlayer.actions = 0;
 
         currentPhase = EGamePhase.WaitPhase;
-        ProcessPhase();        
-        
-        StartCoroutine(WaitAndRegainTurnToken());        
+        ProcessPhase();
+
+        NetworkManager.Instance.PassTurnTokenToNextPlayer();
     }
 
     private IEnumerator TradeTroop(Hexagon from, Hexagon to, int amount)
@@ -387,14 +394,6 @@ public class GameManager : Singleton<GameManager>
         ClearSelection();
     }
 
-    //TODO Remove it later
-    private IEnumerator WaitAndRegainTurnToken()
-    {
-        yield return new WaitForSecondsRealtime(3);
-
-        ReceiveTurnToken();
-    }
-
     private IEnumerator TurnShiftTimer()
     {
         int initSeconds = GameConfig.BASE_TURN_TIMER + (localPlayer.level - 1) * 2;
@@ -420,13 +419,8 @@ public class GameManager : Singleton<GameManager>
         switch (currentPhase)
         {
             case EGamePhase.MaintenancePhase:
-                localPlayer.actions = localPlayer.initialActions;
-
                 localPlayer.AddUnitToAllHexagonsPlayerHas();
-                    
-                uiManager.UpdateUiForMaintenancePhase();
-
-                DoPhaseTransition();
+                DoTransitionToCombatExplorationPhase();                
                 break;
             case EGamePhase.CombatOrExplorationPhase:
                 turnTimerIsRunning = true;
@@ -445,5 +439,12 @@ public class GameManager : Singleton<GameManager>
         }
 
         uiManager.UpdateTopUI(localPlayer, currentTurn);
+    }
+
+    private void DoTransitionToCombatExplorationPhase()
+    {
+        localPlayer.actions = localPlayer.initialActions;
+        uiManager.UpdateUiForMaintenancePhase();
+        DoPhaseTransition();
     }
 }

@@ -26,5 +26,6 @@ public class GameConfig
         public static short REGISTER_PLAYER = 1;
         public static short SEARCH_GAME = 2;
         public static short START_GAMEPLAY = 3;
+        public static short RECEIVE_TURN_TOKEN = 4;
     }
 }

@@ -37,7 +37,10 @@ public class UIManager : MonoBehaviour
         {
             SetPlayerActionsUI(player.actions.ToString());
             SetPlayerTroopUI(player.troop.ToString());
-            SetPlayerLevelUI(player.level.ToString());
+            
+            //SetPlayerLevelUI(player.level.ToString());
+            SetPlayerLevelUI(GameSetup.localPlayerTurnId.ToString());
+
             SetCurrentTurnUI(currentTurn.ToString());
         }
     }
