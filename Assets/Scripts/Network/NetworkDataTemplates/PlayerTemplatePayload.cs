@@ -5,4 +5,5 @@ public class PlayerTemplatePayload
     public long xp;
     public int level;
     public string clientId;
+    public short color;
 }

@@ -68,11 +68,10 @@ public class Hexagon : MonoBehaviour
     {
         if (isPlayer)
         {
-            ChangeColor(GameConfig.player1ColorOnHover);
+            ChangeColor(GameSetup.playerRealColor);
         }
         else if (isEnemy)
         {
-            ChangeColor(GameConfig.enemyColorOnHover);
         }
         else
         {
@@ -84,11 +83,10 @@ public class Hexagon : MonoBehaviour
     {
         if (isPlayer)
         {
-            ChangeColor(GameConfig.player1Color);
+            ChangeColor(GameSetup.playerRealColor);
         }
         else if (isEnemy)
         {
-            ChangeColor(GameConfig.enemyColor);
         }
         else
         {

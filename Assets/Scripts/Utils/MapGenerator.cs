@@ -77,13 +77,14 @@ public class MapGenerator : MonoBehaviour
         {
             h.Value.DetectNeighbors();
         }
-        
-        Hexagon playerHexagon = MapManager.Instance.RandomizeHexagon();
+
+        Hexagon playerHexagon = MapManager.Instance.GetPositionIndexByMapSize(GameSetup.mapSize, GameSetup.localPlayerTurnId);
 
         if (playerHexagon != null)
         {
             playerHexagon.ChangeToVisibleState();
             playerHexagon.landSpriteRenderer.sprite = MapManager.Instance.plainSprite;
+            playerHexagon.ChangeColor(GameSetup.playerRealColor);
 
             GameManager.Instance.SetPlayerInitialHexLand(playerHexagon);
 

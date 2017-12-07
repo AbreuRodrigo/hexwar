@@ -27,6 +27,8 @@ public class NetworkManager : MonoBehaviour {
     public Player localPlayer;
     public bool isLoading = true;
 
+    private int[] positionIndices;
+
     private Queue<Action> tasks = new Queue<Action>();
 
     private Dictionary<short, ServerResponse> networkResponse = null;
@@ -243,6 +245,7 @@ public class NetworkManager : MonoBehaviour {
             PlayerListTemplatePayload playerTemplatePayload = JsonUtility.FromJson<PlayerListTemplatePayload>(message);
             GameSetup.mapSeed = gameTemplatePayload.mapSeed;
             GameSetup.currentGame = gameTemplatePayload.gameName;
+            GameSetup.mapSize = (EMapSize) Enum.Parse(typeof(EMapSize), gameTemplatePayload.mapSize, true);
 
             tasks.Enqueue(WaitForOpponentsTask);
         }
@@ -251,8 +254,18 @@ public class NetworkManager : MonoBehaviour {
     public void OnStartGameplay(string message)
     {
         if (!string.IsNullOrEmpty(message))
-        {
-            GameSetup.localPlayerTurnId = short.Parse(message);
+        {            
+            GameSetup.gameplayData = JsonUtility.FromJson<PlayerGameplayListPayload>(message);
+
+            foreach (PlayerGameplayPayload gameplayInfo in GameSetup.gameplayData.playersData)
+            {
+                if (gameplayInfo.clientId.Equals(localPlayer.clientId))
+                {
+                    GameSetup.localPlayerTurnId = gameplayInfo.turnIndex;
+                    GameSetup.playerColor = gameplayInfo.color;
+                }                
+            }
+
             tasks.Enqueue(LoadGameSceneTask);
         }
     }

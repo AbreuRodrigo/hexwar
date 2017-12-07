@@ -36,10 +36,10 @@ public class MapManager : MonoBehaviour {
 
         gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
         {
-            { EMapSize.SMALL, new MapStructure(40) },
-            { EMapSize.MEDIUM, new MapStructure(100) },
-            { EMapSize.LARGE, new MapStructure(250) },
-            { EMapSize.GIANT, new MapStructure(500) }
+            { EMapSize.SMALL, new MapStructure(250, 2) },
+            { EMapSize.MEDIUM, new MapStructure(500, 3) },
+            { EMapSize.LARGE, new MapStructure(750, 4) },
+            { EMapSize.GIANT, new MapStructure(1000, 4) }
         };
 
         if (groundSprites != null)
@@ -52,7 +52,7 @@ public class MapManager : MonoBehaviour {
     {
         if(mapGenerator != null)
         {
-            mapGenerator.CreateMap(GetMapSize(mapSize));
+            mapGenerator.CreateMap(GetMapSize());
         }
     }
 
@@ -130,6 +130,24 @@ public class MapManager : MonoBehaviour {
         return hexRef;
     }
 
+    public Hexagon GetPositionIndexByMapSize(EMapSize size, int index)
+    {
+        int position = 0;
+        MapStructure map = gameMapDictionary[size];
+        int max = map.max;
+        int players = map.players;
+
+        for (int i = 0; i < players; i++)
+        {
+            if (index == i)
+            {
+                position = i == 0 ? 0 : (max-1) / i;//zero returns zero
+            }
+        }
+
+        return mappedHexagons[position];
+    }
+
     public void RevealNeighbors(Hexagon refHexagon)
     {
         if (refHexagon != null && refHexagon.neighborStructure != null && mappedHexagons != null)
@@ -156,11 +174,11 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    private int GetMapSize(EMapSize mapSize)
+    private int GetMapSize()
     {
         if (gameMapDictionary != null)
         {
-            return gameMapDictionary[mapSize].max;
+            return gameMapDictionary[GameSetup.mapSize].max;
         }
 
         return 0;

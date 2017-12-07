@@ -51,7 +51,7 @@ public class GameManager : Singleton<GameManager>
             uiManager.SetPlayerLevelUI(GameSetup.localPlayerTurnId.ToString());
         }
 
-        if(GameSetup.localPlayerTurnId == 0)
+        if (GameSetup.localPlayerTurnId == 0)
         {
             DoTransitionToCombatExplorationPhase();
         }
@@ -60,6 +60,9 @@ public class GameManager : Singleton<GameManager>
             currentPhase = EGamePhase.ClearPhase;
             DoPhaseTransition();
         }
+
+        localPlayer.playerColor = ColorManager.instance.colors[GameSetup.playerColor];
+        GameSetup.playerRealColor = localPlayer.playerColor;
     }
 
     private void Update()
@@ -95,7 +98,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (localPlayer != null && hexLand != null)
         {
-            Hexagon playerHexagon = hexLand;
+            Hexagon playerHexagon = hexLand;            
             playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
             playerHexagon.SetAsPlayer(localPlayer, localPlayer.troop);
 
