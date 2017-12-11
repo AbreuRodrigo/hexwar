@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class HexagonHUD : MonoBehaviour
 {
-    public Text troopMarker;
+    public Text textVal;
 
-    public void SetTroop(int amount)
+    public void SetValue(int value)
     {
-        if(troopMarker != null)
+        if(textVal != null)
         {
-            troopMarker.text = amount.ToString();
+            textVal.text = value.ToString();
         }
     }
 }

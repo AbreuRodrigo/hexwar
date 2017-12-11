@@ -46,11 +46,8 @@ public class MapManager : MonoBehaviour {
         {
             totalGroundSprites = groundSprites.Length;
         }
-    }
 
-    void Start()
-    {
-        if(mapGenerator != null)
+        if (mapGenerator != null)
         {
             mapGenerator.CreateMap(GetMapSize());
         }
@@ -68,7 +65,7 @@ public class MapManager : MonoBehaviour {
         return mappedHexagons[rand];
     }
 
-    public void AddHexagon(int index, Hexagon hexagon)
+    public void AddHexagon(Hexagon hexagon)
     {
         if(hexagon == null)
         {
@@ -85,7 +82,7 @@ public class MapManager : MonoBehaviour {
             hexagon.ChangeToFoggedState();
         }
 
-        mappedHexagons.Add(index, hexagon);
+        mappedHexagons.Add(hexagon.id, hexagon);
     }
 
     public Sprite GetRandomLandSprite()
@@ -130,22 +127,13 @@ public class MapManager : MonoBehaviour {
         return hexRef;
     }
 
-    public Hexagon GetPositionIndexByMapSize(EMapSize size, int index)
+    public Hexagon GetHexagonByMapSizeAndIndex(EMapSize size, int index)
     {
-        int position = 0;
         MapStructure map = gameMapDictionary[size];
         int max = map.max;
         int players = map.players;
 
-        for (int i = 0; i < players; i++)
-        {
-            if (index == i)
-            {
-                position = i == 0 ? 0 : (max-1) / i;//zero returns zero
-            }
-        }
-
-        return mappedHexagons[position];
+        return mappedHexagons[index];
     }
 
     public void RevealNeighbors(Hexagon refHexagon)

@@ -6,10 +6,9 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     private ENeighborPosition[] listOfNeighborPosition = null;
-    private Hexagon hexRef = null;
     
-    private int hexGenerationCount = 0;
     private int maxIndex = 0;
+    private static int idRef = 0;
 
     [Header("Prefabs")]
     public GameObject hexagonPrefab;
@@ -19,6 +18,7 @@ public class MapGenerator : MonoBehaviour
 
     void Awake()
     {
+        idRef = 0;
         listOfNeighborPosition = (ENeighborPosition[])System.Enum.GetValues(typeof(ENeighborPosition));
     }
 
@@ -77,19 +77,6 @@ public class MapGenerator : MonoBehaviour
         {
             h.Value.DetectNeighbors();
         }
-
-        Hexagon playerHexagon = MapManager.Instance.GetPositionIndexByMapSize(GameSetup.mapSize, GameSetup.localPlayerTurnId);
-
-        if (playerHexagon != null)
-        {
-            playerHexagon.ChangeToVisibleState();
-            playerHexagon.landSpriteRenderer.sprite = MapManager.Instance.plainSprite;
-            playerHexagon.ChangeColor(GameSetup.playerRealColor);
-
-            GameManager.Instance.SetPlayerInitialHexLand(playerHexagon);
-
-            MapManager.Instance.RevealNeighbors(playerHexagon);
-        }
 	}
 
     private Hexagon CreateNewHexagon(Vector3 pos)
@@ -99,15 +86,16 @@ public class MapGenerator : MonoBehaviour
 
     private Hexagon CreateNewHexagon(float x, float y, float z)
     {
+        Hexagon hexRef = null;
+
         if (hexagonPrefab != null && mapParent != null)
         {
             hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, mapParent).GetComponent<Hexagon>();
-            hexRef.id = hexGenerationCount;
+            hexRef.id = idRef;
             hexRef.SetLandSprite(MapManager.Instance.GetRandomLandSprite());
+            idRef++;
 
-            MapManager.Instance.AddHexagon(hexGenerationCount, hexRef);            
-
-            hexGenerationCount++;
+            MapManager.Instance.AddHexagon(hexRef);
         }
 
         return hexRef;

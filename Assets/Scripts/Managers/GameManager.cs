@@ -11,6 +11,10 @@ public class GameManager : Singleton<GameManager>
     public TargetSelection targetSelection;
     public PreviewMove previewMove;
     public GameStateManager gameStateManager;
+    public Transform opponentsContainer;
+
+    [Header("Prefabs")]
+    public GameObject opponentPlayer;
 
     [Header("Opponents")]
     public List<Player> opponents;
@@ -44,7 +48,10 @@ public class GameManager : Singleton<GameManager>
             { EGamePhase.WaitPhase, EGamePhase.MaintenancePhase }
         };
 
-        if (uiManager != null && localPlayer != null)
+        localPlayer = NetworkManager.Instance.localPlayer;
+        localPlayer.troop = GameConfig.INITIAL_TROOP;
+
+        if (uiManager != null)
         {
             uiManager.UpdateTopUI(localPlayer, currentTurn);
             uiManager.SetCurrentTurnUI(currentTurn.ToString());
@@ -60,9 +67,11 @@ public class GameManager : Singleton<GameManager>
             currentPhase = EGamePhase.ClearPhase;
             DoPhaseTransition();
         }
+        
+        GameSetup.playerRealColor = localPlayer.playerColor = ColorManager.instance.colors[GameSetup.playerColor];
 
-        localPlayer.playerColor = ColorManager.instance.colors[GameSetup.playerColor];
-        GameSetup.playerRealColor = localPlayer.playerColor;
+        SetupPlayersInitialHexagon(localPlayer, true);
+        SetupOpponents();
     }
 
     private void Update()
@@ -94,18 +103,67 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void SetPlayerInitialHexLand(Hexagon hexLand)
+    public void SetupPlayersInitialHexagon(Player player, bool isLocalPlayer)
     {
-        if (localPlayer != null && hexLand != null)
+        Hexagon playerHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, player.initialHexagon);
+
+        if (playerHexagon != null)
+        {            
+            playerHexagon.SetLandSprite(MapManager.Instance.plainSprite);
+            playerHexagon.ChangeColor(player.playerColor);            
+            playerHexagon.troop = GameConfig.INITIAL_TROOP;
+
+            if (isLocalPlayer)
+            {
+                playerHexagon.SetAsPlayer(player);
+                playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
+                playerHexagon.ChangeToVisibleState();
+                playerHexagon.EnableNeighbours();
+
+                Vector3 p = playerHexagon.gameObject.transform.position;
+                p.z = Camera.main.transform.position.z;
+
+                Camera.main.transform.position = p;
+            }
+            else
+            {
+                if (GameSetup.Instance.showEnemies)
+                {
+                    playerHexagon.ChangeToVisibleState();
+                    playerHexagon.EnableNeighbours();
+                }
+
+                playerHexagon.SetAsEnemy(player);
+                playerHexagon.gameObject.name = GameConfig.ENEMY_HEXAGON_NAME;
+            }
+        }
+    }
+
+    public void SetupOpponents()
+    {
+        opponents = new List<Player>();
+        int playerCounter = 1;
+
+        foreach (PlayerGameplayPayload playerRef in GameSetup.gameplayData.playersData)
         {
-            Hexagon playerHexagon = hexLand;            
-            playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
-            playerHexagon.SetAsPlayer(localPlayer, localPlayer.troop);
+            if (!playerRef.clientId.Equals(localPlayer.clientId))
+            {
+                playerCounter++;
 
-            Vector3 p = playerHexagon.gameObject.transform.position;
-            p.z = Camera.main.transform.position.z;
+                Player opponent = Instantiate(opponentPlayer, opponentsContainer).GetComponent<Player>();                
 
-            Camera.main.transform.position = p;
+                opponent.clientId = playerRef.clientId;
+                opponent.level = playerRef.level;
+                opponent.turnIndex = playerRef.turnIndex;
+                opponent.playerName = "Player" + playerCounter;
+                opponent.totalHexLands = 1;
+                opponent.initialHexagon = playerRef.initialHexagon;
+                opponent.playerColor = ColorManager.instance.colors[playerRef.color];
+
+                SetupPlayersInitialHexagon(opponent, false);
+
+                opponents.Add(opponent);
+            }
         }
     }
 
@@ -359,7 +417,7 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator TradeTroop(Hexagon from, Hexagon to, int amount)
     {
-        to.SetAsPlayer(localPlayer, 0);
+        to.SetAsPlayer(localPlayer);
         targetSelection.gameObject.SetActive(false);
         previewMove.gameObject.SetActive(false);
 
@@ -369,18 +427,20 @@ public class GameManager : Singleton<GameManager>
 
         Vector3 bumpVec = new Vector3(1.2f, 1.2f, 1);
 
+        int passedTroopUnits = amount;
+
         while (amount > 0)
         {
             from.troop--;
-            from.hud.SetTroop(from.troop);
+            from.hud.SetValue(from.troop);
 
             to.troop++;
-            to.hud.SetTroop(to.troop);
+            to.hud.SetValue(to.troop);
 
-            LeanTween.scale(from.hud.troopMarker.gameObject, bumpVec, 0.25f)
+            LeanTween.scale(from.hud.textVal.gameObject, bumpVec, 0.25f)
                      .setEasePunch();
 
-            LeanTween.scale(to.hud.troopMarker.gameObject, bumpVec, 0.25f)
+            LeanTween.scale(to.hud.textVal.gameObject, bumpVec, 0.25f)
                      .setEasePunch();
 
             amount--;
@@ -388,13 +448,15 @@ public class GameManager : Singleton<GameManager>
             yield return new WaitForSecondsRealtime(0.125f);
         }
 
-        from.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
-        to.hud.troopMarker.gameObject.transform.localScale = Vector3.one;
+        from.hud.textVal.gameObject.transform.localScale = Vector3.one;
+        to.hud.textVal.gameObject.transform.localScale = Vector3.one;
         to.spawningTurn = currentTurn;
 
         SnoringMarkerManager.Instance.RequestSnoringMarker(to);
 
         ClearSelection();
+
+        NetworkManager.Instance.PassMoveToOpponentPlayer(from.id, to.id, passedTroopUnits);
     }
 
     private IEnumerator TurnShiftTimer()

@@ -16,13 +16,18 @@ public class Player : MonoBehaviour
     public Color playerColor;
     public int selectedHexagonId;
     public string clientId;
+    public int turnIndex;
+    public int initialHexagon;
     
     public void AddHexLand(Hexagon newHexLand)
     {
         if(newHexLand != null)
         {
-            hexagons.Add(newHexLand.id, newHexLand);
-            totalHexLands++;
+            if(!hexagons.ContainsKey(newHexLand.id))
+            {
+                hexagons.Add(newHexLand.id, newHexLand);
+                totalHexLands++;
+            }
         }
     }
 

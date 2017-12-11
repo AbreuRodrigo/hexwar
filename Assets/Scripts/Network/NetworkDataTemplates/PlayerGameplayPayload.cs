@@ -5,4 +5,5 @@ public class PlayerGameplayPayload
     public short turnIndex;
     public short color;
     public int level;
+    public int initialHexagon;
 }

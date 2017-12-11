@@ -17,7 +17,7 @@ public class NetworkManager : MonoBehaviour {
     private IPEndPoint remoteEndPoint = null;
 
     [Header("Remote Connection")]
-    public string remoteIp = "192.168.0.11";
+    public string remoteIp = "192.168.0.10";
     public int remotePort = 7777;
 
     [Header("Local Connection")]
@@ -27,7 +27,14 @@ public class NetworkManager : MonoBehaviour {
     public Player localPlayer;
     public bool isLoading = true;
 
-    private int[] positionIndices;
+    private PlayerListTemplatePayload playersTemplatePayload;
+    public PlayerReferencePayload[] PlayersTemplate
+    {
+        get
+        {
+            return playersTemplatePayload.players;
+        }
+    }
 
     private Queue<Action> tasks = new Queue<Action>();
 
@@ -64,9 +71,10 @@ public class NetworkManager : MonoBehaviour {
         networkResponse = new Dictionary<short, ServerResponse>()
         {
             { GameConfig.NetworkCode.REGISTER_PLAYER, OnRegisterPlayer },
-            { GameConfig.NetworkCode.SEARCH_GAME, OnSearchedGame },
+            { GameConfig.NetworkCode.SEARCH_GAME, OnSearchGame },
             { GameConfig.NetworkCode.START_GAMEPLAY, OnStartGameplay },
-            { GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, OnReceiveTurnToken }
+            { GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, OnReceiveTurnToken },
+            { GameConfig.NetworkCode.RECEIVE_OPPONENT_MOVE_ACTION, OnReceiveOpponentMove }
         };
     }
 
@@ -150,16 +158,15 @@ public class NetworkManager : MonoBehaviour {
         SendPayload(GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, data, localPlayer.clientId);
     }
 
-    private static string Serialize<T>(T toSerialize)
+    public void PassMoveToOpponentPlayer(int source, int target, int troops)
     {
-        XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
-        StringWriter textWriter = new StringWriter();
+        PlayerMovePayload payload = new PlayerMovePayload();
+        payload.source = source;
+        payload.target = target;
+        payload.troop = troops;
 
-        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-        ns.Add("", "");
-
-        xmlSerializer.Serialize(textWriter, toSerialize, ns);
-        return textWriter.ToString();
+        string data = JsonUtility.ToJson(payload);
+        SendPayload(GameConfig.NetworkCode.RECEIVE_OPPONENT_MOVE_ACTION, data, localPlayer.clientId);
     }
 
     private string FixStringMessage(string strMsg)
@@ -237,12 +244,13 @@ public class NetworkManager : MonoBehaviour {
         PlayerPrefs.SetString(GameConfig.PLAYER_UNIQUE_ID, localPlayer.clientId);
     }
 
-    public void OnSearchedGame(string message)
+    public void OnSearchGame(string message)
     {
         if (message != null)
         {
             GameTemplatePayload gameTemplatePayload = JsonUtility.FromJson<GameTemplatePayload>(message);
-            PlayerListTemplatePayload playerTemplatePayload = JsonUtility.FromJson<PlayerListTemplatePayload>(message);
+            playersTemplatePayload = JsonUtility.FromJson<PlayerListTemplatePayload>(message);
+
             GameSetup.mapSeed = gameTemplatePayload.mapSeed;
             GameSetup.currentGame = gameTemplatePayload.gameName;
             GameSetup.mapSize = (EMapSize) Enum.Parse(typeof(EMapSize), gameTemplatePayload.mapSize, true);
@@ -263,7 +271,8 @@ public class NetworkManager : MonoBehaviour {
                 {
                     GameSetup.localPlayerTurnId = gameplayInfo.turnIndex;
                     GameSetup.playerColor = gameplayInfo.color;
-                }                
+                    localPlayer.initialHexagon = gameplayInfo.initialHexagon;
+                }
             }
 
             tasks.Enqueue(LoadGameSceneTask);
@@ -276,6 +285,13 @@ public class NetworkManager : MonoBehaviour {
         {
             tasks.Enqueue(ReceiveTurnTokenTask);
         }
+    }
+
+    public void OnReceiveOpponentMove(string message)
+    {
+        PlayerMovePayload p = JsonUtility.FromJson<PlayerMovePayload>(message);
+        
+
     }
 
     //TASKS
@@ -294,5 +310,17 @@ public class NetworkManager : MonoBehaviour {
     private void ReceiveTurnTokenTask()
     {
         GameManager.Instance.ReceiveTurnToken();
+    }
+
+    private static string Serialize<T>(T toSerialize)
+    {
+        XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+        StringWriter textWriter = new StringWriter();
+
+        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+        ns.Add("", "");
+
+        xmlSerializer.Serialize(textWriter, toSerialize, ns);
+        return textWriter.ToString();
     }
 }

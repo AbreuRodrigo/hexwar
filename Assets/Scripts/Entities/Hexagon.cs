@@ -16,6 +16,7 @@ public class Hexagon : MonoBehaviour
     public int troop = 0;
     public NeighborStructure neighborStructure;
     public HexagonHUD hud;
+    public HexagonHUD debug;
     public ELandState state;
     public int spawningTurn = 0;
 
@@ -31,29 +32,51 @@ public class Hexagon : MonoBehaviour
         width = landSpriteRenderer.size.x;
         height = landSpriteRenderer.size.y;
     }
+
+    void Start()
+    {
+        if (GameSetup.Instance.showHexagonsId)
+        {
+            debug.gameObject.SetActive(true);
+            debug.SetValue(id);
+        }
+        else
+        {
+            debug.gameObject.SetActive(false);
+        }
+    }
         
     public void ChangeColor(Color color)
     {
         landSpriteRenderer.color = color;
     }
 
-    public void SetAsPlayer(Player player, int troop)
-    {
-        if (player != null)
+    public void SetAsPlayer(Player player)
+    { 
+        isPlayer = true;
+
+        if (hud != null)
         {
-            isPlayer = true;
-
-            if (hud != null)
-            {
-                hud.gameObject.SetActive(true);
-                hud.SetTroop(troop);
-                this.troop = troop;
-            }
-
-            ChangeColor(player.playerColor);
-
-            player.AddHexLand(this);
+            hud.gameObject.SetActive(true);
+            hud.SetValue(troop);
         }
+
+        ChangeColor(player.playerColor);
+        player.AddHexLand(this);
+    }
+
+    public void SetAsEnemy(Player opponent)
+    {
+        isEnemy = true;
+                        
+        if (hud != null && GameSetup.Instance.showEnemies)
+        {
+            hud.gameObject.SetActive(true);
+            hud.SetValue(troop);
+        }
+
+        ChangeColor(opponent.playerColor);
+        opponent.AddHexLand(this);
     }
 
     public void SetLandSprite(Sprite sprite)
@@ -62,6 +85,11 @@ public class Hexagon : MonoBehaviour
         {
             landSpriteRenderer.sprite = sprite;
         }
+    }
+
+    public void EnableNeighbours()
+    {
+        MapManager.Instance.RevealNeighbors(this);
     }
     
     public void OnRayCastHit()
@@ -291,7 +319,7 @@ public class Hexagon : MonoBehaviour
     public void AddOneUnitToTroop()
     {
         troop++;
-        hud.SetTroop(troop);
+        hud.SetValue(troop);
     }
 
     private void ChangeState(ELandState state)
