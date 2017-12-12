@@ -35,6 +35,8 @@ public class GameManager : Singleton<GameManager>
     public Hexagon selectedHexagon;
 
     private bool turnTimerIsRunning = false;
+
+    private PlayerMovePayload playerMovePayload = null;
     
     private Dictionary<EGamePhase, EGamePhase> phaseOrder = null;
         
@@ -230,6 +232,25 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    public Player GetOpponentByClientId(string clientId)
+    {
+        Player opponent = null;
+
+        if(opponents != null && !string.IsNullOrEmpty(clientId))
+        {
+            foreach(Player o in opponents)
+            {
+                if(clientId.Equals(o.clientId))
+                {
+                    opponent = o;
+                    break;
+                }
+            }
+        }
+
+        return opponent;
+    }
+
     public void AddToPreview()
     {
         if(previewMove != null && 
@@ -386,6 +407,45 @@ public class GameManager : Singleton<GameManager>
 
         DoPhaseTransition();
     }
+
+    public void SetOpponentsMovementPayload(PlayerMovePayload payload)
+    {
+        if(playerMovePayload == null && payload != null)
+        {
+            playerMovePayload = payload;
+        }
+    }
+
+    public void ReceiveOpponentsMovement()
+    {
+        if (playerMovePayload != null)
+        {
+            Player opponentMoving = GameManager.Instance.GetOpponentByClientId(playerMovePayload.clientId);
+
+            Hexagon sourceHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, playerMovePayload.source);
+            Hexagon targetHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, playerMovePayload.target);
+
+            targetHexagon.gameObject.name = GameConfig.ENEMY_HEXAGON_NAME;
+            targetHexagon.SetLandSprite(MapManager.Instance.plainSprite);
+
+            if (targetHexagon.isPlayer)
+            {
+                //This will be an attack
+            }
+            else
+            {
+                sourceHexagon.DeductUnits(playerMovePayload.movingUnits);
+                targetHexagon.SetAsEnemy(opponentMoving, playerMovePayload.movingUnits);                
+
+                if (GameSetup.Instance.showEnemies)
+                {
+                    MapManager.Instance.RevealNeighbors(targetHexagon);
+                }
+            }
+
+            playerMovePayload = null;
+        }
+    }
     
     private void DoPhaseTransition()
     {
@@ -427,7 +487,8 @@ public class GameManager : Singleton<GameManager>
 
         Vector3 bumpVec = new Vector3(1.2f, 1.2f, 1);
 
-        int passedTroopUnits = amount;
+        int baseUnits = from.troop;
+        int passedUnits = amount;
 
         while (amount > 0)
         {
@@ -456,7 +517,7 @@ public class GameManager : Singleton<GameManager>
 
         ClearSelection();
 
-        NetworkManager.Instance.PassMoveToOpponentPlayer(from.id, to.id, passedTroopUnits);
+        NetworkManager.Instance.PassMoveToOpponentPlayer(from.id, baseUnits, to.id, passedUnits);
     }
 
     private IEnumerator TurnShiftTimer()
@@ -500,10 +561,35 @@ public class GameManager : Singleton<GameManager>
             case EGamePhase.WaitPhase:
                 turnTimerIsRunning = false;
                 uiManager.UpdateUiForWaitPhase();
+                AdjustOpponentsTroopsByTurn();
                 break;
         }
 
         uiManager.UpdateTopUI(localPlayer, currentTurn);
+    }
+
+    private void AdjustOpponentsTroopsByTurn()
+    {
+        Player nextPlayer = null;
+
+        foreach (Player opponent in opponents)
+        {
+            if (opponent.turnIndex == 0)
+            {
+                nextPlayer = opponent;
+            }
+
+            if (opponent.turnIndex == localPlayer.turnIndex + 1)
+            {
+                nextPlayer = opponent;
+                break;
+            }
+        }
+
+        if (nextPlayer != null)
+        {
+            nextPlayer.AddUnitToAllHexagonsPlayerHas();
+        }
     }
 
     private void DoTransitionToCombatExplorationPhase()

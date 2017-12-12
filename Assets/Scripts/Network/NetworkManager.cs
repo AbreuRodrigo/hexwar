@@ -42,6 +42,8 @@ public class NetworkManager : MonoBehaviour {
 
     public delegate void ServerResponse(string message);
 
+    private string movementMessage = null;
+
     private static NetworkManager instance;
     public static NetworkManager Instance
     {
@@ -158,12 +160,14 @@ public class NetworkManager : MonoBehaviour {
         SendPayload(GameConfig.NetworkCode.RECEIVE_TURN_TOKEN, data, localPlayer.clientId);
     }
 
-    public void PassMoveToOpponentPlayer(int source, int target, int troops)
+    public void PassMoveToOpponentPlayer(int source, int baseUnits, int target, int movingUnits)
     {
         PlayerMovePayload payload = new PlayerMovePayload();
+        payload.clientId = localPlayer.clientId;
         payload.source = source;
+        payload.baseUnits = baseUnits;
         payload.target = target;
-        payload.troop = troops;
+        payload.movingUnits = movingUnits;
 
         string data = JsonUtility.ToJson(payload);
         SendPayload(GameConfig.NetworkCode.RECEIVE_OPPONENT_MOVE_ACTION, data, localPlayer.clientId);
@@ -289,9 +293,11 @@ public class NetworkManager : MonoBehaviour {
 
     public void OnReceiveOpponentMove(string message)
     {
-        PlayerMovePayload p = JsonUtility.FromJson<PlayerMovePayload>(message);
-        
-
+        if(!string.IsNullOrEmpty(message))
+        {
+            this.movementMessage = message;
+            tasks.Enqueue(ReceiveOpponentsMovement);
+        }
     }
 
     //TASKS
@@ -310,6 +316,16 @@ public class NetworkManager : MonoBehaviour {
     private void ReceiveTurnTokenTask()
     {
         GameManager.Instance.ReceiveTurnToken();
+    }
+
+    private void ReceiveOpponentsMovement()
+    {
+        if (this.movementMessage != null)
+        {
+            PlayerMovePayload p = JsonUtility.FromJson<PlayerMovePayload>(this.movementMessage);
+            GameManager.Instance.SetOpponentsMovementPayload(p);
+            GameManager.Instance.ReceiveOpponentsMovement();
+        }
     }
 
     private static string Serialize<T>(T toSerialize)

@@ -65,14 +65,22 @@ public class Hexagon : MonoBehaviour
         player.AddHexLand(this);
     }
 
-    public void SetAsEnemy(Player opponent)
+    public void SetAsEnemy(Player opponent, int units = 0)
     {
         isEnemy = true;
                         
         if (hud != null && GameSetup.Instance.showEnemies)
         {
             hud.gameObject.SetActive(true);
-            hud.SetValue(troop);
+
+            if (units != 0)
+            {
+                hud.SetValue(units + troop);
+            }
+            else
+            {
+                hud.SetValue(troop);
+            }
         }
 
         ChangeColor(opponent.playerColor);
@@ -319,6 +327,12 @@ public class Hexagon : MonoBehaviour
     public void AddOneUnitToTroop()
     {
         troop++;
+        hud.SetValue(troop);
+    }
+
+    public void DeductUnits(int deduction)
+    {
+        troop -= deduction;
         hud.SetValue(troop);
     }
 
