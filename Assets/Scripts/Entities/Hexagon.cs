@@ -9,8 +9,6 @@ public class Hexagon : MonoBehaviour
     public SpriteRenderer landSpriteRenderer;
     public SpriteRenderer fogSpriteRenderer;
     public int id;
-    public float width;
-    public float height;
     public bool isPlayer;
     public bool isEnemy;
     public int troop = 0;
@@ -28,9 +26,6 @@ public class Hexagon : MonoBehaviour
         {
             landSpriteRenderer = GetComponent<SpriteRenderer>();
         }
-
-        width = landSpriteRenderer.size.x;
-        height = landSpriteRenderer.size.y;
     }
 
     void Start()
@@ -44,6 +39,44 @@ public class Hexagon : MonoBehaviour
         {
             debug.gameObject.SetActive(false);
         }
+    }
+
+    void Update()
+    {
+        float x = transform.position.x;
+        float y = transform.position.y;
+        float h = 0.96f;
+        float w = 0.64f;
+        float s = 1.28f;
+
+        Vector3 origin = transform.position;
+        origin.y += 0.64f;
+        y += 0.64f;
+
+        Vector3 dir = Vector3.zero;
+        dir = new Vector3(x - s, y, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
+
+        dir = new Vector3(x - w, y + h, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
+
+        dir = new Vector3(x + w, y + h, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
+
+        dir = new Vector3(x + s, origin.y, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
+
+        dir = new Vector3(x + w, y - h, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
+
+        dir = new Vector3(x - w, y - h, 0);
+
+        Debug.DrawLine(origin, dir, Color.green);
     }
         
     public void ChangeColor(Color color)
@@ -132,63 +165,70 @@ public class Hexagon : MonoBehaviour
 
     public void DetectNeighbors()
     {
+        Vector3 direction = Vector3.zero;
         float x = transform.position.x;
-        float y = transform.position.y;       
+        float y = transform.position.y;
+        float b = 0.32f;
+        float h = b * 3;
+        float w = b * 2;
+        float s = b * 4;
 
+        y += w;
+        
         Hexagon neighbor = null;
 
+        //Defining Left
+        direction = new Vector3(x - s, y, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
+
+        if (neighbor != null)
+        {
+            neighborStructure.AddLeftNeighbor(neighbor.id);
+        }
+
         //Defining TopLeft
-        Vector3 direction = new Vector3(x - width * 0.75f, y + height * 0.5f, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
+        direction = new Vector3(x - w, y + h, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
 
         if(neighbor != null)
         {
-            this.neighborStructure.AddTopLeftNeighbor(neighbor.id);
-        }
-
-        //Defining TopMiddle
-        direction = new Vector3(x, y + height, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
-
-        if (neighbor != null)
-        {
-            this.neighborStructure.AddTopMiddleNeighbor(neighbor.id);
+            neighborStructure.AddTopLeftNeighbor(neighbor.id);
         }
         
         //Defining TopRight
-        direction = new Vector3(x + width * 0.75f, y + height * 0.5f, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
+        direction = new Vector3(x + w, y + h, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
         
         if (neighbor != null)
         {
-            this.neighborStructure.AddTopRightNeighbor(neighbor.id);
+            neighborStructure.AddTopRightNeighbor(neighbor.id);
+        }
+
+        //Defining Right
+        direction = new Vector3(x + s, y, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
+
+        if (neighbor != null)
+        {
+            neighborStructure.AddRightNeighbor(neighbor.id);
         }
 
         //Defining BottomRight
-        direction = new Vector3(x + width * 0.75f, y - height * 0.5f, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
+        direction = new Vector3(x + w, y - h, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddBottomRightNeighbor(neighbor.id);
-        }
-
-        //Defining BottomMiddle
-        direction = new Vector3(x, y - height, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
-
-        if (neighbor != null)
-        {
-            this.neighborStructure.AddBottomMiddleNeighbor(neighbor.id);
+            neighborStructure.AddBottomRightNeighbor(neighbor.id);
         }
 
         //Defining BottomLeft
-        direction = new Vector3(x - width * 0.75f, y - height * 0.5f, 0);
-        neighbor = MathHelper.DetectNeighbor(this, direction);
+        direction = new Vector3(x - w, y - h, 0);
+        neighbor = MathHelper.DetectNeighbor(direction);
 
         if (neighbor != null)
         {
-            this.neighborStructure.AddBottomLeftNeighbor(neighbor.id);
+            neighborStructure.AddBottomLeftNeighbor(neighbor.id);
         }
     }
 
@@ -204,7 +244,7 @@ public class Hexagon : MonoBehaviour
     {
         if (neighborStructure != null)
         {
-            neighborStructure.AddTopMiddleNeighbor(index);
+            neighborStructure.AddLeftNeighbor(index);
         }
     }
 
@@ -228,7 +268,7 @@ public class Hexagon : MonoBehaviour
     {
         if (neighborStructure != null)
         {
-            neighborStructure.AddBottomMiddleNeighbor(index);
+            neighborStructure.AddRightNeighbor(index);
         }
     }
 
@@ -260,9 +300,9 @@ public class Hexagon : MonoBehaviour
             {
                 return ENeighborPosition.TopRight;
             }
-            if (currentPlayerHexagon.id == this.neighborStructure.bottomMiddle)
+            if (currentPlayerHexagon.id == this.neighborStructure.right)
             {
-                return ENeighborPosition.TopMiddle;
+                return ENeighborPosition.Left;
             }
             if (currentPlayerHexagon.id == this.neighborStructure.bottomRight)
             {
@@ -272,9 +312,9 @@ public class Hexagon : MonoBehaviour
             {
                 return ENeighborPosition.BottomRight;
             }
-            if (currentPlayerHexagon.id == this.neighborStructure.topMiddle)
+            if (currentPlayerHexagon.id == this.neighborStructure.left)
             {
-                return ENeighborPosition.BottomMiddle;
+                return ENeighborPosition.Right;
             }
             if (currentPlayerHexagon.id == this.neighborStructure.topRight)
             {
@@ -289,11 +329,11 @@ public class Hexagon : MonoBehaviour
     {
         if(neighborStructure != null && other != null)
         {
-            if(other.id == neighborStructure.topLeft)
+            if (other.id == neighborStructure.left)
             {
                 return true;
             }
-            if (other.id == neighborStructure.topMiddle)
+            if(other.id == neighborStructure.topLeft)
             {
                 return true;
             }
@@ -301,15 +341,15 @@ public class Hexagon : MonoBehaviour
             {
                 return true;
             }
-            if (other.id == neighborStructure.bottomLeft)
-            {
-                return true;
-            }
-            if (other.id == neighborStructure.bottomMiddle)
+            if (other.id == neighborStructure.right)
             {
                 return true;
             }
             if (other.id == neighborStructure.bottomRight)
+            {
+                return true;
+            }
+            if (other.id == neighborStructure.bottomLeft)
             {
                 return true;
             }

@@ -6,8 +6,8 @@ public class CameraPinchZoom : MonoBehaviour
     public Camera mainCamera;
     public float perspectiveZoomSpeed = 0.01f;
     public float orthoZoomSpeed = 0.01f;
-    public float minZoon = 5;
-    public float maxZoom = 20;
+    public float minZoon = 2.5f;
+    public float maxZoom = 7;
     private float zoomSpeedMouse = -25;
     private bool initializing = true;
 

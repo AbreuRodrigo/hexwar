@@ -9,6 +9,8 @@ public class CameraDrag : MonoBehaviour
 
     public Camera cameraRef;
 
+    private bool wasZooming = false;
+
     void Start()
     {
         resetCamera = cameraRef.transform.position;
@@ -16,7 +18,22 @@ public class CameraDrag : MonoBehaviour
 
     void LateUpdate()
     {
-        if (GameManager.Instance.GameState == EGameState.Gameplay)
+        if(Input.touchCount == 0 && wasZooming)
+        {
+            wasZooming = false;
+        }
+
+        if (wasZooming)
+        {
+            return;
+        }
+
+        if (Input.touchCount > 1)
+        {
+            wasZooming = true;
+            return;
+        }
+        else if (GameManager.Instance.GameState == EGameState.Gameplay)
         {
             if (Input.GetMouseButton(0))
             {

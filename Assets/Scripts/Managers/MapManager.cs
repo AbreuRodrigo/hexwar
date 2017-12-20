@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapManager : MonoBehaviour {
-
+public class MapManager : MonoBehaviour
+{
     private static MapManager instance;
     public static MapManager Instance
     {
@@ -19,11 +19,13 @@ public class MapManager : MonoBehaviour {
     [Header("Attributes")]
     public EMapSize mapSize;
 
-    [Header("Sprites")]
-    public Sprite[] groundSprites;
+    [Header("Sprites")]    
     public Sprite plainSprite;
     public Sprite fogSprite;
     public Sprite borderFogSprite;
+
+    [Header("Sprite Categories")]
+    public SpriteCategory[] groundSprites;
 
     private Hexagon hexRef = null;
     private Hexagon neighborHexagonRef = null;
@@ -89,7 +91,8 @@ public class MapManager : MonoBehaviour {
     {
         if (groundSprites != null)
         {
-            return groundSprites[Random.Range(0, totalGroundSprites)];
+            SpriteCategory category = groundSprites[Random.Range(0, totalGroundSprites)];
+            return category.sprites[Random.Range(0, category.TotalSprites)];
         }
 
         return null;
@@ -140,11 +143,11 @@ public class MapManager : MonoBehaviour {
     {
         if (refHexagon != null && refHexagon.neighborStructure != null && mappedHexagons != null)
         {
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.left);
             ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topLeft);
-            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topMiddle);
             ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.topRight);
+            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.right);
             ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomRight);
-            ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomMiddle);
             ValidateNeighborHexagonAndRevealIt(refHexagon.neighborStructure.bottomLeft);
         }
     }

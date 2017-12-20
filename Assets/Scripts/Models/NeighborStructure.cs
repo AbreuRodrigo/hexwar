@@ -8,11 +8,11 @@ public class NeighborStructure
     private Dictionary<ENeighborPosition, int> neighbors = new Dictionary<ENeighborPosition, int>(6);
 
     [Header("Neighbors")]
+    public int left = -1;
     public int topLeft = -1;
-    public int topMiddle = -1;
     public int topRight = -1;
+    public int right = -1;
     public int bottomRight = -1;
-    public int bottomMiddle = -1;
     public int bottomLeft = -1;
 
     public bool HasTopLeftNeighbor()
@@ -20,9 +20,9 @@ public class NeighborStructure
         return topLeft != -1;
     }
 
-    public bool HasTopMiddleNeighbor()
+    public bool HasLeftNeighbor()
     {
-        return topMiddle != -1;
+        return left != -1;
     }
 
     public bool HasTopRightNeighbor()
@@ -35,9 +35,9 @@ public class NeighborStructure
         return bottomRight != -1;
     }
 
-    public bool HasBottomMiddleNeighbor()
+    public bool HasRightNeighbor()
     {
-        return bottomMiddle != -1;
+        return right != -1;
     }
 
     public bool HasBottomLeftNeighbor()
@@ -50,9 +50,9 @@ public class NeighborStructure
         AddIfNull(ENeighborPosition.TopLeft, index, out topLeft);
     }
 
-    public void AddTopMiddleNeighbor(int index)
+    public void AddLeftNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.TopMiddle, index, out topMiddle);
+        AddIfNull(ENeighborPosition.Left, index, out left);
     }
 
     public void AddTopRightNeighbor(int index)
@@ -65,9 +65,9 @@ public class NeighborStructure
         AddIfNull(ENeighborPosition.BottomRight, index, out bottomRight);
     }
 
-    public void AddBottomMiddleNeighbor(int index)
+    public void AddRightNeighbor(int index)
     {
-        AddIfNull(ENeighborPosition.BottomMiddle, index, out bottomMiddle);
+        AddIfNull(ENeighborPosition.Right, index, out right);
     }
 
     public void AddBottomLeftNeighbor(int index)

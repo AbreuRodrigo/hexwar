@@ -30,6 +30,7 @@ public class GameManager : Singleton<GameManager>
 
     private Vector3 topPosition = new Vector3(0, 0.8f, 0);
     private Vector3 bottomPosition = new Vector3(0, -0.8f, 0);
+    private Vector3 centerPosition = new Vector3(0, 0, 0);
 
     public Hexagon lastHexagon;
     public Hexagon selectedHexagon;
@@ -369,12 +370,10 @@ public class GameManager : Singleton<GameManager>
         {
             case ENeighborPosition.TopLeft:
             case ENeighborPosition.TopRight:
-            case ENeighborPosition.TopMiddle:
                 pos = topPosition;
                 break;
             case ENeighborPosition.BottomLeft:
             case ENeighborPosition.BottomRight:
-            case ENeighborPosition.BottomMiddle:
                 pos = bottomPosition;
                 break;
         }
@@ -442,7 +441,7 @@ public class GameManager : Singleton<GameManager>
                     MapManager.Instance.RevealNeighbors(targetHexagon);
                 }
             }
-
+           
             playerMovePayload = null;
         }
     }

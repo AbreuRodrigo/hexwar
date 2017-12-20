@@ -1,10 +1,10 @@
 ﻿public enum ENeighborPosition
 { 
     TopLeft,
-    TopMiddle,
+    Left,
     TopRight,
     BottomRight,
-    BottomMiddle,
+    Right,
     BottomLeft,
     None
 }

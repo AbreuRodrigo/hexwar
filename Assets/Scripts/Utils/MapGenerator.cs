@@ -37,31 +37,31 @@ public class MapGenerator : MonoBehaviour
 
             int index = 0;
             
-            while (index < size-1)
+            while (index < size - 1)
             {
-                neighborPos = RandomizeNeighborPosition();
                 hexBase = MapManager.Instance.RandomizeHexagon();
+                neighborPos = RandomizeNeighborPosition();
                 direction = GetNeighborPositionByDirection(hexBase, neighborPos);
-                hasNeighborInDirection = MathHelper.HasNeighborInDirection(hexBase, direction);
-                
-                if(!hasNeighborInDirection)
+                hasNeighborInDirection = MathHelper.HasNeighborInDirection(direction);
+                                
+                if(!hasNeighborInDirection && neighborPos != ENeighborPosition.None)
                 {
                     switch (neighborPos)
                     {
+                        case ENeighborPosition.Left:
+                            CreateInTheLeft(hexBase);
+                            break;
                         case ENeighborPosition.TopLeft:
                             CreateInTheTopLeft(hexBase);
-                            break;
-                        case ENeighborPosition.TopMiddle:
-                            CreateInTheTopMiddle(hexBase);
                             break;
                         case ENeighborPosition.TopRight:
                             CreateInTheTopRight(hexBase);
                             break;
+                        case ENeighborPosition.Right:
+                            CreateInTheRight(hexBase);
+                            break;
                         case ENeighborPosition.BottomRight:
                             CreateInTheBottomRight(hexBase);
-                            break;
-                        case ENeighborPosition.BottomMiddle:
-                            CreateInTheBottomMiddle(hexBase);
                             break;
                         case ENeighborPosition.BottomLeft:
                             CreateInTheBottomLeft(hexBase);
@@ -90,7 +90,7 @@ public class MapGenerator : MonoBehaviour
 
         if (hexagonPrefab != null && mapParent != null)
         {
-            hexRef = Instantiate(hexagonPrefab, new Vector3(x, y, z), Quaternion.identity, mapParent).GetComponent<Hexagon>();
+            hexRef = Instantiate(hexagonPrefab, new Vector3(x, y - 0.64f, z), Quaternion.identity, mapParent).GetComponent<Hexagon>();
             hexRef.id = idRef;
             hexRef.SetLandSprite(MapManager.Instance.GetRandomLandSprite());
             idRef++;
@@ -106,9 +106,9 @@ public class MapGenerator : MonoBehaviour
         CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.TopLeft));
     }
 
-    private void CreateInTheTopMiddle(Hexagon hexBase)
+    private void CreateInTheLeft(Hexagon hexBase)
     {
-        CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.TopMiddle));
+        CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.Left));
     }
 
     private void CreateInTheTopRight(Hexagon hexBase)
@@ -121,9 +121,9 @@ public class MapGenerator : MonoBehaviour
         CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.BottomRight));
     }
 
-    private void CreateInTheBottomMiddle(Hexagon hexBase)
+    private void CreateInTheRight(Hexagon hexBase)
     {
-        CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.BottomMiddle));
+        CreateNewHexagon(GetNeighborPositionByDirection(hexBase, ENeighborPosition.Right));
     }
 
     private void CreateInTheBottomLeft(Hexagon hexBase)
@@ -142,26 +142,32 @@ public class MapGenerator : MonoBehaviour
         Vector3 direction = Vector3.zero;
         float x = hexBase.transform.localPosition.x;
         float y = hexBase.transform.localPosition.y;
+        float b = 0.32f;
+        float h = b * 3;
+        float w = b * 2;
+        float sw = b * 4;
 
+        y += w;
+        
         switch (neighborPos)
         {
-            case ENeighborPosition.TopLeft:
-                direction = new Vector3(x - hexBase.width * 0.75f, y + hexBase.height * 0.5f, 0);
+            case ENeighborPosition.Left:
+                direction = new Vector3(x - sw, y, 0);
                 break;
-            case ENeighborPosition.TopMiddle:
-                direction = new Vector3(x, y + hexBase.height, 0);
+            case ENeighborPosition.TopLeft:
+                direction = new Vector3(x - w, y + h, 0);
                 break;
             case ENeighborPosition.TopRight:
-                direction = new Vector3(x + hexBase.width * 0.75f, y + hexBase.height * 0.5f, 0);
+                direction = new Vector3(x + w, y + h, 0);
+                break;
+            case ENeighborPosition.Right:
+                direction = new Vector3(x + sw, y, 0);
                 break;
             case ENeighborPosition.BottomRight:
-                direction = new Vector3(x + hexBase.width * 0.75f, y - hexBase.height * 0.5f, 0);
-                break;
-            case ENeighborPosition.BottomMiddle:
-                direction = new Vector3(x, y - hexBase.height, 0);
+                direction = new Vector3(x + w, y - h, 0);
                 break;
             case ENeighborPosition.BottomLeft:
-                direction = new Vector3(x - hexBase.width * 0.75f, y - hexBase.height * 0.5f, 0);
+                direction = new Vector3(x - w, y - h, 0);
                 break;
         }
 

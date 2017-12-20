@@ -15,8 +15,6 @@ using System.Runtime.Serialization;
 
 public class UDPReceiver
 {
-    private const int RECEIVING_PORT = 11777;
-
     private Thread listenThread = null;
     private UdpClient udpClient;
 
@@ -27,6 +25,8 @@ public class UDPReceiver
     public bool Initialized { get; set; }
 
     private readonly object clientLock = new object();
+
+    public IPEndPoint LocalEndPoint { get { return localEP; } }
 
     private class UdpState
     {
@@ -45,6 +45,8 @@ public class UDPReceiver
         this.localEP = localEP;
         this.remoteEP = remoteEP;
         this.Initialized = false;
+
+        InitUdpClient();
         Init();
     }
 
@@ -52,6 +54,21 @@ public class UDPReceiver
     {
         listenThread.Abort();
         udpClient.Close();
+    }
+
+    public void InitUdpClient()
+    {
+        if (udpClient != null)
+        {
+            currentAsyncResult = null;
+            udpClient.Close();
+        }
+        udpClient = new UdpClient();
+        udpClient.ExclusiveAddressUse = false;
+        udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+        udpClient.Client.Bind(localEP);
+
+        localEP = (IPEndPoint)udpClient.Client.LocalEndPoint;
     }
 
     public void Init()
@@ -68,17 +85,7 @@ public class UDPReceiver
     {
         lock (clientLock)
         {
-            if (udpClient != null)
-            {
-                currentAsyncResult = null;
-                udpClient.Close();
-            }
-            udpClient = new UdpClient();
-            udpClient.ExclusiveAddressUse = false;
-            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            udpClient.Client.Bind(localEP);
-
-            var s = new UdpState(localEP, udpClient);
+            UdpState s = new UdpState(localEP, udpClient);
             currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
         }
     }

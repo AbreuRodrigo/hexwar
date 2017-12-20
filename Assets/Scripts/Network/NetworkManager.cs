@@ -17,12 +17,14 @@ public class NetworkManager : MonoBehaviour {
     private IPEndPoint remoteEndPoint = null;
 
     [Header("Remote Connection")]
-    public string remoteIp = "192.168.0.10";
-    public int remotePort = 7777;
+    public bool localConnection = true;
+    public string localServer = "192.168.0.10";
+    public string remoteServer = "54.241.148.177";
+    public int port = 7777;
 
     [Header("Local Connection")]
     public string localIp = "0.0.0.0";
-    public int localPort = 11777;
+    public int localPort = 0;
 
     public Player localPlayer;
     public bool isLoading = true;
@@ -89,15 +91,16 @@ public class NetworkManager : MonoBehaviour {
     {
         //TODO REMOVE HARDCODE LATER
         localEndPoint = new IPEndPoint(IPAddress.Parse(localIp), localPort);
-        remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIp), remotePort);
+        remoteEndPoint = new IPEndPoint(IPAddress.Parse(localConnection ? localServer : remoteServer), port);
 
-        if(sender == null)
-        {
-            sender = new UDPSender(localEndPoint, remoteEndPoint);
-        }
         if (receiver == null)
         {
             receiver = new UDPReceiver(localEndPoint, remoteEndPoint);
+            localEndPoint = receiver.LocalEndPoint;
+        }
+        if (sender == null)
+        {
+            sender = new UDPSender(localEndPoint, remoteEndPoint);
         }
     }
 
