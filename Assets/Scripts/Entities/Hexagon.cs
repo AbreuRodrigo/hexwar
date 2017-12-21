@@ -81,7 +81,7 @@ public class Hexagon : MonoBehaviour
         
     public void ChangeColor(Color color)
     {
-        landSpriteRenderer.color = color;
+        //landSpriteRenderer.color = color;
     }
 
     public void SetAsPlayer(Player player)
@@ -92,9 +92,9 @@ public class Hexagon : MonoBehaviour
         {
             hud.gameObject.SetActive(true);
             hud.SetValue(troop);
-        }
+        }              
 
-        ChangeColor(player.playerColor);
+        //ChangeColor(player.playerColor);
         player.AddHexLand(this);
     }
 
@@ -116,7 +116,7 @@ public class Hexagon : MonoBehaviour
             }
         }
 
-        ChangeColor(opponent.playerColor);
+        //ChangeColor(opponent.playerColor);
         opponent.AddHexLand(this);
     }
 
@@ -391,6 +391,8 @@ public class Hexagon : MonoBehaviour
             }
 
             landSpriteRenderer.enabled = true;
+            landSpriteRenderer.sortingOrder = ((int)transform.position.y - 30) * -1;
+
             DeactivateFogSprite();
         }
     }

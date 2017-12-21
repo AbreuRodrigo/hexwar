@@ -387,7 +387,9 @@ public class GameManager : Singleton<GameManager>
         {
             if (selection != null)
             {
-                selection.transform.position = targetHexagon.transform.position;
+                Vector3 pos = targetHexagon.transform.position;
+                pos.y += 0.65f;
+                selection.transform.position = pos;
                 selection.gameObject.SetActive(true);
             }
 
