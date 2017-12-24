@@ -1,12 +1,15 @@
-﻿[System.Serializable]
-public class MapStructure
+﻿namespace Hexwar
 {
-    public int max;
-    public int players;
-
-    public MapStructure(int max, int players)
+    [System.Serializable]
+    public class MapStructure
     {
-        this.max = max;
-        this.players = players;
+        public int max;
+        public int players;
+
+        public MapStructure(int max, int players)
+        {
+            this.max = max;
+            this.players = players;
+        }
     }
 }

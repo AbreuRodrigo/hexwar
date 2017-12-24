@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputHandler<T>
+namespace Hexwar
 {
-    public void HandleType()
+    public class InputHandler<T>
     {
-        T t;
+        public void HandleType()
+        {
+            T t;
+        }
     }
 }

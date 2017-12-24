@@ -3,128 +3,131 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TargetSelection : MonoBehaviour
+namespace Hexwar
 {
-    [Header("UI")]
-    public Button addButton;
-    public Button subtractButton;
-    public Button confirmMoveButton;
-
-    [Header("Components")]
-    public GameObject actionControl;
-    public GameObject targetMarker;
-
-    [Header("Action Buttons")]
-    public GameObject confirmButton;
-    public GameObject actionContainer;
-
-    public void OnAddButtonPressed()
+    public class TargetSelection : MonoBehaviour
     {
-        GameManager.Instance.AddToPreview();
-    }
+        [Header("UI")]
+        public Button addButton;
+        public Button subtractButton;
+        public Button confirmMoveButton;
 
-    public void OnSubtractButtonPressed()
-    {
-        GameManager.Instance.SubtractFromPreview();
-    }
+        [Header("Components")]
+        public GameObject actionControl;
+        public GameObject targetMarker;
 
-    public void OnConfirmButtonPressed()
-    {
-        GameManager.Instance.ConfirmMoveTroop();
-    }
+        [Header("Action Buttons")]
+        public GameObject confirmButton;
+        public GameObject actionContainer;
 
-    public void Activate(ETargetSelectionType type)
-    {
-        gameObject.transform.localScale = Vector3.zero;
-
-        if (type == ETargetSelectionType.EmptyLand)
+        public void OnAddButtonPressed()
         {
-            targetMarker.gameObject.SetActive(false);
-            actionControl.gameObject.SetActive(true);
-        }
-        else if(type == ETargetSelectionType.EnemyLand)
-        {            
-            targetMarker.gameObject.SetActive(true);
-            actionControl.gameObject.SetActive(false);            
+            GameManager.Instance.AddToPreview();
         }
 
-        LeanTween.scale(gameObject, Vector3.one, 0.5f)
-                 .setEaseInOutElastic();
-    }
-
-    public void RearrangeContentTop()
-    {
-        confirmButton.transform.SetSiblingIndex(0);
-        actionContainer.transform.SetSiblingIndex(1);
-    }
-
-    public void RearrangeContentBottom()
-    {
-        actionContainer.transform.SetSiblingIndex(0);
-        confirmButton.transform.SetSiblingIndex(1);
-    }
-
-    public void EnableAddButton()
-    {
-        if(addButton != null)
+        public void OnSubtractButtonPressed()
         {
-            addButton.interactable = true;
+            GameManager.Instance.SubtractFromPreview();
         }
-    }
 
-    public void DisableAddButton()
-    {
-        if(addButton != null)
+        public void OnConfirmButtonPressed()
         {
-            addButton.interactable = false;
+            GameManager.Instance.ConfirmMoveTroop();
         }
-    }
 
-    public void EnableSubtractButton()
-    {
-        if (subtractButton != null)
+        public void Activate(ETargetSelectionType type)
         {
-            subtractButton.interactable = true;
+            gameObject.transform.localScale = Vector3.zero;
+
+            if (type == ETargetSelectionType.EmptyLand)
+            {
+                targetMarker.gameObject.SetActive(false);
+                actionControl.gameObject.SetActive(true);
+            }
+            else if (type == ETargetSelectionType.EnemyLand)
+            {
+                targetMarker.gameObject.SetActive(true);
+                actionControl.gameObject.SetActive(false);
+            }
+
+            LeanTween.scale(gameObject, Vector3.one, 0.5f)
+                     .setEaseInOutElastic();
         }
-    }
 
-    public void DisableSubtractButton()
-    {
-        if (subtractButton != null)
+        public void RearrangeContentTop()
         {
-            subtractButton.interactable = false;
+            confirmButton.transform.SetSiblingIndex(0);
+            actionContainer.transform.SetSiblingIndex(1);
         }
-    }
 
-    public void EnableConfirmButton()
-    {
-        if (confirmButton != null)
+        public void RearrangeContentBottom()
         {
-            confirmMoveButton.interactable = true;
+            actionContainer.transform.SetSiblingIndex(0);
+            confirmButton.transform.SetSiblingIndex(1);
         }
-    }
 
-    public void DisableConfirmButton()
-    {
-        if (confirmMoveButton != null)
+        public void EnableAddButton()
         {
-            confirmMoveButton.interactable = false;
+            if (addButton != null)
+            {
+                addButton.interactable = true;
+            }
         }
-    }
 
-    public void ResetFunctionalities()
-    {
-        DisableConfirmButton();
-        DisableSubtractButton();
-    }
-
-    public void ResetConsideringSelectionTroop(int troop, ETargetSelectionType type)
-    {
-        Activate(type);
-
-        if(troop > 1)
+        public void DisableAddButton()
         {
+            if (addButton != null)
+            {
+                addButton.interactable = false;
+            }
+        }
 
+        public void EnableSubtractButton()
+        {
+            if (subtractButton != null)
+            {
+                subtractButton.interactable = true;
+            }
+        }
+
+        public void DisableSubtractButton()
+        {
+            if (subtractButton != null)
+            {
+                subtractButton.interactable = false;
+            }
+        }
+
+        public void EnableConfirmButton()
+        {
+            if (confirmButton != null)
+            {
+                confirmMoveButton.interactable = true;
+            }
+        }
+
+        public void DisableConfirmButton()
+        {
+            if (confirmMoveButton != null)
+            {
+                confirmMoveButton.interactable = false;
+            }
+        }
+
+        public void ResetFunctionalities()
+        {
+            DisableConfirmButton();
+            DisableSubtractButton();
+        }
+
+        public void ResetConsideringSelectionTroop(int troop, ETargetSelectionType type)
+        {
+            Activate(type);
+
+            if (troop > 1)
+            {
+
+            }
         }
     }
 }

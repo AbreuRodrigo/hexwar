@@ -1,5 +1,8 @@
-﻿public enum ETurnActionButtonState
+﻿namespace Hexwar
 {
-    Skip,
-    End
+    public enum ETurnActionButtonState
+    {
+        Skip,
+        End
+    }
 }

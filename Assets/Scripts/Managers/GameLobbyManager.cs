@@ -2,16 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameLobbyManager : MonoBehaviour
+namespace Hexwar
 {
-    private void Awake()
+    public class GameLobbyManager : MonoBehaviour
     {
-        Application.runInBackground = true;
-    }
+        private void Awake()
+        {
+            Application.runInBackground = true;            
+        }
 
-    [System.Obsolete]
-    public void OnCreateGameButtonClick()
-    {
-        //Deprecated the functionality
+        private void Start()
+        {
+            AudioManager.Instance.PlayMenuAmbience();
+            AudioManager.Instance.PlayMainTheme();
+        }
+
+        [System.Obsolete]
+        public void OnCreateGameButtonClick()
+        {
+            //Deprecated the functionality
+        }
     }
 }

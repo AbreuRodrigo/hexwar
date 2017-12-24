@@ -1,9 +1,12 @@
-﻿[System.Serializable]
-public class PlayerMovePayload
+﻿namespace Hexwar
 {
-    public string clientId;
-    public int source;
-    public int baseUnits;
-    public int target;
-    public int movingUnits;
+    [System.Serializable]
+    public class PlayerMovePayload
+    {
+        public string clientId;
+        public int source;
+        public int baseUnits;
+        public int target;
+        public int movingUnits;
+    }
 }

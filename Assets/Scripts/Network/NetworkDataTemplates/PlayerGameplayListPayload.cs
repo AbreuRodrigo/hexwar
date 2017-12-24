@@ -1,5 +1,8 @@
-﻿[System.Serializable]
-public class PlayerGameplayListPayload
+﻿namespace Hexwar
 {
-    public PlayerGameplayPayload[] playersData;
+    [System.Serializable]
+    public class PlayerGameplayListPayload
+    {
+        public PlayerGameplayPayload[] playersData;
+    }
 }

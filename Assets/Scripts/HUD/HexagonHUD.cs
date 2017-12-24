@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HexagonHUD : MonoBehaviour
+namespace Hexwar
 {
-    public Text textVal;
-
-    public void SetValue(int value)
+    public class HexagonHUD : MonoBehaviour
     {
-        if(textVal != null)
+        public Text textVal;
+
+        public void SetValue(int value)
         {
-            textVal.text = value.ToString();
+            if (textVal != null)
+            {
+                textVal.text = value.ToString();
+            }
         }
     }
 }

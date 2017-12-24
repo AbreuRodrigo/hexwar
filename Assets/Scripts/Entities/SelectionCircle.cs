@@ -2,21 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SelectionCircle : MonoBehaviour
+namespace Hexwar
 {
-    void Start()
+    public class SelectionCircle : MonoBehaviour
     {
-        LeanTween.rotateZ(gameObject, 180, 5).setLoopClamp();
-    }
+        void Start()
+        {
+            LeanTween.rotateZ(gameObject, 180, 5).setLoopClamp();
+        }
 
-    void OnEnable ()
-    {
-        StartSpinning();
-	}
+        void OnEnable()
+        {
+            StartSpinning();
+        }
 
-    private void StartSpinning()
-    {
-        gameObject.transform.localScale = Vector3.zero;
-        LeanTween.scale(gameObject, new Vector3(0.7f, 0.7f, 1), 0.5f).setEaseInOutElastic();
+        private void StartSpinning()
+        {
+            gameObject.transform.localScale = Vector3.zero;
+            LeanTween.scale(gameObject, new Vector3(0.7f, 0.7f, 1), 0.5f).setEaseInOutElastic();
+        }
     }
 }

@@ -1,9 +1,12 @@
-﻿[System.Serializable]
-public class PlayerGameplayPayload
+﻿namespace Hexwar
 {
-    public string clientId;
-    public short turnIndex;
-    public short color;
-    public int level;
-    public int initialHexagon;
+    [System.Serializable]
+    public class PlayerGameplayPayload
+    {
+        public string clientId;
+        public short turnIndex;
+        public short color;
+        public int level;
+        public int initialHexagon;
+    }
 }

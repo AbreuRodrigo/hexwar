@@ -3,24 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BlinkingText : MonoBehaviour {
-    public Image blockBakaground;
-    public Text text;
-
-    void Start()
+namespace Hexwar
+{
+    public class BlinkingText : MonoBehaviour
     {
-        LeanTween.textColor(text.rectTransform, new Color(0.25f, 0.25f, 0.25f), 1).setLoopPingPong();
-    }
+        public Image blockBakaground;
+        public Text text;
 
-    public void Show()
-    {
-        blockBakaground.gameObject.SetActive(true);
-        text.enabled = true;        
-    }
+        void Start()
+        {
+            LeanTween.textColor(text.rectTransform, new Color(0.25f, 0.25f, 0.25f), 1).setLoopPingPong();
+        }
 
-    public void Hide()
-    {
-        blockBakaground.gameObject.SetActive(false);
-        text.enabled = false;
+        public void Show()
+        {
+            blockBakaground.gameObject.SetActive(true);
+            text.enabled = true;
+        }
+
+        public void Hide()
+        {
+            blockBakaground.gameObject.SetActive(false);
+            text.enabled = false;
+        }
     }
 }

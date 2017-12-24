@@ -1,7 +1,10 @@
-﻿public enum EGamePhase
+﻿namespace Hexwar
 {
-    MaintenancePhase,
-    CombatOrExplorationPhase,
-    ClearPhase,
-    WaitPhase
+    public enum EGamePhase
+    {
+        MaintenancePhase,
+        CombatOrExplorationPhase,
+        ClearPhase,
+        WaitPhase
+    }
 }

@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PoolableObject : MonoBehaviour
+namespace Hexwar
 {
-    public int idInPool;
+    public class PoolableObject : MonoBehaviour
+    {
+        public int idInPool;
+    }
 }

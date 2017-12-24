@@ -2,23 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ColorManager : MonoBehaviour {
-
-    public static ColorManager instance;
-
-    public Color[] colors;
-
-    private void Awake()
+namespace Hexwar
+{
+    public class ColorManager : MonoBehaviour
     {
-        if(instance == null)
+
+        public static ColorManager instance;
+
+        public Color[] colors;
+
+        private void Awake()
         {
-            instance = this;
-            DontDestroyOnLoad(this);
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(this);
+            }
         }
-    }
 
-    public Color GetColorByIndex(short index)
-    {
-        return colors[index];
+        public Color GetColorByIndex(short index)
+        {
+            return colors[index];
+        }
     }
 }

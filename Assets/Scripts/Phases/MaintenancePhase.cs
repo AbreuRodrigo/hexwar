@@ -3,26 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MaintenancePhase : GamePhase
+namespace Hexwar
 {
-    public MaintenancePhase(GamePhase nextPhase)
+    public class MaintenancePhase : GamePhase
     {
-        this.gamePhase = EGamePhase.MaintenancePhase;
-        this.nextPhase = nextPhase;
-    }
+        public MaintenancePhase(GamePhase nextPhase)
+        {
+            this.gamePhase = EGamePhase.MaintenancePhase;
+            this.nextPhase = nextPhase;
+        }
 
-    public override void OnFinish()
-    {
-        throw new NotImplementedException();
-    }
+        public override void OnFinish()
+        {
+            throw new NotImplementedException();
+        }
 
-    public override void OnHandle(Player player)
-    {
-        throw new NotImplementedException();
-    }
+        public override void OnHandle(Player player)
+        {
+            throw new NotImplementedException();
+        }
 
-    public override void OnInitialize()
-    {
-        throw new NotImplementedException();
+        public override void OnInitialize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

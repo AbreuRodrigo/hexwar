@@ -3,46 +3,50 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TableRow : MonoBehaviour {
-
-    public int id;
-
-    public Text gameName;
-    public Text mapSize;
-    public Text totalPlayers;
-    public Image bgImage;
-    public Button myButtonBehaviour;
-
-    private GameTemplate gameTemplate;
-
-    public string GameName
+namespace Hexwar
+{
+    public class TableRow : MonoBehaviour
     {
-        get { return gameName.text; }
-    }
 
-    public void SetInfo(int id, string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, Color bgColor, bool createdByLocalPlayer)
-    {
-        if(gameTemplate == null)
+        public int id;
+
+        public Text gameName;
+        public Text mapSize;
+        public Text totalPlayers;
+        public Image bgImage;
+        public Button myButtonBehaviour;
+
+        private GameTemplate gameTemplate;
+
+        public string GameName
         {
-            gameTemplate = new GameTemplate();
+            get { return gameName.text; }
         }
 
-        gameTemplate.name = gameName;
-        gameTemplate.size = mapSize;
-        gameTemplate.currenPlayers = currentPlayers;
-        gameTemplate.totalPlayers = totalPlayers;
-        gameTemplate.createdByLocalPlayer = createdByLocalPlayer;
+        public void SetInfo(int id, string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, Color bgColor, bool createdByLocalPlayer)
+        {
+            if (gameTemplate == null)
+            {
+                gameTemplate = new GameTemplate();
+            }
 
-        this.id = id;
-        this.bgImage.color = bgColor;
+            gameTemplate.name = gameName;
+            gameTemplate.size = mapSize;
+            gameTemplate.currenPlayers = currentPlayers;
+            gameTemplate.totalPlayers = totalPlayers;
+            gameTemplate.createdByLocalPlayer = createdByLocalPlayer;
 
-        UpdateUI(gameTemplate);
-    }
+            this.id = id;
+            this.bgImage.color = bgColor;
 
-    private void UpdateUI(GameTemplate template)
-    {
-        gameName.text = template.name;
-        mapSize.text = template.size.ToString();
-        totalPlayers.text = template.currenPlayers + " / " + template.totalPlayers;
+            UpdateUI(gameTemplate);
+        }
+
+        private void UpdateUI(GameTemplate template)
+        {
+            gameName.text = template.name;
+            mapSize.text = template.size.ToString();
+            totalPlayers.text = template.currenPlayers + " / " + template.totalPlayers;
+        }
     }
 }

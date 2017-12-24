@@ -2,34 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SnoringMarkerManager : Singleton<SnoringMarkerManager>
+namespace Hexwar
 {
-    public PoolableObject poolableObject;
-    public int initialPoolSize;
-
-    private ObjectPool objectPool = null;
-
-    void Start()
+    public class SnoringMarkerManager : Singleton<SnoringMarkerManager>
     {
-        objectPool = new ObjectPool(initialPoolSize, poolableObject, transform);
-    }
+        public PoolableObject poolableObject;
+        public int initialPoolSize;
 
-    public void RequestSnoringMarker(Hexagon newPlayerHexagon)
-    {
-        PoolableObject obj = objectPool.GetNextAvailable();
-        obj.transform.position = newPlayerHexagon.transform.position;
-        obj.gameObject.SetActive(true);
-    }
+        private ObjectPool objectPool = null;
 
-    public void ReturnAllObjectsInUseToPool()
-    {
-        if(objectPool != null)
+        void Start()
         {
-            int count = objectPool.usedObjects.Count;
+            objectPool = new ObjectPool(initialPoolSize, poolableObject, transform);
+        }
 
-            for (int i = 0; i < count; i++)
+        public void RequestSnoringMarker(Hexagon newPlayerHexagon)
+        {
+            PoolableObject obj = objectPool.GetNextAvailable();
+            obj.transform.position = newPlayerHexagon.transform.position;
+            obj.gameObject.SetActive(true);
+        }
+
+        public void ReturnAllObjectsInUseToPool()
+        {
+            if (objectPool != null)
             {
-                objectPool.ReturnObjectToPool(objectPool.usedObjects.First.Value);
+                int count = objectPool.usedObjects.Count;
+
+                for (int i = 0; i < count; i++)
+                {
+                    objectPool.ReturnObjectToPool(objectPool.usedObjects.First.Value);
+                }
             }
         }
     }

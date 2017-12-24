@@ -1,5 +1,8 @@
-﻿[System.Serializable]
-public class PlayerListTemplatePayload
+﻿namespace Hexwar
 {
-    public PlayerReferencePayload[] players;
+    [System.Serializable]
+    public class PlayerListTemplatePayload
+    {
+        public PlayerReferencePayload[] players;
+    }
 }

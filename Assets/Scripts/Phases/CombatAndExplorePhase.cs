@@ -3,25 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CombatAndExplorePhase : GamePhase
+namespace Hexwar
 {
-    public CombatAndExplorePhase(GamePhase nextPhase)
+    public class CombatAndExplorePhase : GamePhase
     {
-        this.nextPhase = nextPhase;
-    }
+        public CombatAndExplorePhase(GamePhase nextPhase)
+        {
+            this.nextPhase = nextPhase;
+        }
 
-    public override void OnFinish()
-    {
-        throw new NotImplementedException();
-    }
+        public override void OnFinish()
+        {
+            throw new NotImplementedException();
+        }
 
-    public override void OnHandle(Player player)
-    {
-        throw new NotImplementedException();
-    }
+        public override void OnHandle(Player player)
+        {
+            throw new NotImplementedException();
+        }
 
-    public override void OnInitialize()
-    {
-        throw new NotImplementedException();
+        public override void OnInitialize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-[System.Serializable]
-public class GameListTemplatePayload
+namespace Hexwar
 {
-    public List<GameTemplatePayload> games = new List<GameTemplatePayload>();
+    [System.Serializable]
+    public class GameListTemplatePayload
+    {
+        public List<GameTemplatePayload> games = new List<GameTemplatePayload>();
+    }
 }

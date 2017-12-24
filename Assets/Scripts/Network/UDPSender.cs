@@ -11,66 +11,69 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
-public class UDPSender
+namespace Hexwar
 {
-    private IPEndPoint localEndPoint = null;
-    private IPEndPoint remoteEndPoint = null;
-    private IPAddress ip;
-    private int port;
-    private UdpClient udpClient;
-    
-    public UDPSender(IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
+    public class UDPSender
     {
-        this.localEndPoint = localEndPoint;
-        this.remoteEndPoint = remoteEndPoint;
-        this.udpClient = new UdpClient();
-        this.ip = remoteEndPoint.Address;
-        this.port = remoteEndPoint.Port;
-    }
+        private IPEndPoint localEndPoint = null;
+        private IPEndPoint remoteEndPoint = null;
+        private IPAddress ip;
+        private int port;
+        private UdpClient udpClient;
 
-    public void SendPayload(Payload payload)
-    {
-        try
+        public UDPSender(IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
         {
-            string data = MountPayloadString(payload);
-            Send(data);
+            this.localEndPoint = localEndPoint;
+            this.remoteEndPoint = remoteEndPoint;
+            this.udpClient = new UdpClient();
+            this.ip = remoteEndPoint.Address;
+            this.port = remoteEndPoint.Port;
         }
-        catch (Exception err)
+
+        public void SendPayload(Payload payload)
         {
-            Debug.Log(err.ToString());
+            try
+            {
+                string data = MountPayloadString(payload);
+                Send(data);
+            }
+            catch (Exception err)
+            {
+                Debug.Log(err.ToString());
+            }
         }
-    }
 
-    public void Send(string message)
-    {
-        byte[] messageData = System.Text.Encoding.UTF8.GetBytes(message);
+        public void Send(string message)
+        {
+            byte[] messageData = System.Text.Encoding.UTF8.GetBytes(message);
 
-        UdpClient sender = new UdpClient();
-        sender.ExclusiveAddressUse = false;
-        sender.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-        sender.Client.Bind(localEndPoint);
-        sender.Send(messageData, messageData.Length, remoteEndPoint);
-        sender.Close();
-    }
+            UdpClient sender = new UdpClient();
+            sender.ExclusiveAddressUse = false;
+            sender.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            sender.Client.Bind(localEndPoint);
+            sender.Send(messageData, messageData.Length, remoteEndPoint);
+            sender.Close();
+        }
 
-    private string MountPayloadString(Payload payload)
-    {
-        string payloadStr = "<payload><code>{0}</code><message>{1}</message><clientID>{2}</clientID></payload>";
+        private string MountPayloadString(Payload payload)
+        {
+            string payloadStr = "<payload><code>{0}</code><message>{1}</message><clientID>{2}</clientID></payload>";
 
-        payloadStr = string.Format(payloadStr, payload.code, payload.message, payload.clientID);
+            payloadStr = string.Format(payloadStr, payload.code, payload.message, payload.clientID);
 
-        return payloadStr;
-    }
+            return payloadStr;
+        }
 
-    private static string Serialize<T>(T toSerialize)
-    {
-        XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
-        StringWriter textWriter = new StringWriter();
+        private static string Serialize<T>(T toSerialize)
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+            StringWriter textWriter = new StringWriter();
 
-        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-        ns.Add("", "");
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
 
-        xmlSerializer.Serialize(textWriter, toSerialize, ns);
-        return textWriter.ToString();
+            xmlSerializer.Serialize(textWriter, toSerialize, ns);
+            return textWriter.ToString();
+        }
     }
 }

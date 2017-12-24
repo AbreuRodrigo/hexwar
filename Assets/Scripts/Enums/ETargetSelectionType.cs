@@ -1,5 +1,8 @@
-﻿public enum ETargetSelectionType
-{ 
-    EmptyLand,
-    EnemyLand
+﻿namespace Hexwar
+{
+    public enum ETargetSelectionType
+    {
+        EmptyLand,
+        EnemyLand
+    }
 }

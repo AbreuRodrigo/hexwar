@@ -3,25 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GamePhase
+namespace Hexwar
 {
-    protected GamePhase nextPhase;
-    public EGamePhase gamePhase;
-    
-    public abstract void OnHandle(Player player);
-
-    public abstract void OnInitialize();
-
-    public abstract void OnFinish();
-
-    public bool MoveToNextState()
+    public abstract class GamePhase
     {
-        if(nextPhase != null)
-        {
-            nextPhase.OnInitialize();
-            return true;
-        }
+        protected GamePhase nextPhase;
+        public EGamePhase gamePhase;
 
-        return false;
+        public abstract void OnHandle(Player player);
+
+        public abstract void OnInitialize();
+
+        public abstract void OnFinish();
+
+        public bool MoveToNextState()
+        {
+            if (nextPhase != null)
+            {
+                nextPhase.OnInitialize();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

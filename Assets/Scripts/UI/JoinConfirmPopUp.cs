@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class JoinConfirmPopUp : BasePopUp
+namespace Hexwar
 {
-    public Text textBox;
-
-    private const string TEXT_BOX_CONFIRM_TXT = "Do you really want to join {0}?";
-
-    public void SetGameNameInTextBox(string gameName)
+    public class JoinConfirmPopUp : BasePopUp
     {
-        if(textBox != null)
+        public Text textBox;
+
+        private const string TEXT_BOX_CONFIRM_TXT = "Do you really want to join {0}?";
+
+        public void SetGameNameInTextBox(string gameName)
         {
-            textBox.text = string.Format(TEXT_BOX_CONFIRM_TXT, gameName);
+            if (textBox != null)
+            {
+                textBox.text = string.Format(TEXT_BOX_CONFIRM_TXT, gameName);
+            }
         }
     }
 }

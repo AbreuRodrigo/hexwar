@@ -3,30 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateGamePopUp : BasePopUp
+namespace Hexwar
 {
-    public InputField gameNameInputField;
-    public Dropdown mapSizeDropDown;
-
-    private void OnDisable()
+    public class CreateGamePopUp : BasePopUp
     {
-        ClosePopUp();
-    }
+        public InputField gameNameInputField;
+        public Dropdown mapSizeDropDown;
 
-    public string GetGameName()
-    {
-        string gameName = "";
-
-        if(gameNameInputField != null)
+        private void OnDisable()
         {
-            gameName = gameNameInputField.text;
+            ClosePopUp();
         }
 
-        return gameName;
-    }
+        public string GetGameName()
+        {
+            string gameName = "";
 
-    public string GetMapSize()
-    {
-        return EMapSize.SMALL.ToString();
+            if (gameNameInputField != null)
+            {
+                gameName = gameNameInputField.text;
+            }
+
+            return gameName;
+        }
+
+        public string GetMapSize()
+        {
+            return EMapSize.SMALL.ToString();
+        }
     }
 }

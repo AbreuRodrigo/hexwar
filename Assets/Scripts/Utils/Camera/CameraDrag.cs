@@ -1,58 +1,61 @@
 ﻿using UnityEngine;
 
-public class CameraDrag : MonoBehaviour
+namespace Hexwar
 {
-    private Vector3 resetCamera;
-    private Vector3 origin;
-    private Vector3 diference;
-    private bool drag = false;
-
-    public Camera cameraRef;
-
-    private bool wasZooming = false;
-
-    void Start()
+    public class CameraDrag : MonoBehaviour
     {
-        resetCamera = cameraRef.transform.position;
-    }
+        private Vector3 resetCamera;
+        private Vector3 origin;
+        private Vector3 diference;
+        private bool drag = false;
 
-    void LateUpdate()
-    {
-        if(Input.touchCount == 0 && wasZooming)
+        public Camera cameraRef;
+
+        private bool wasZooming = false;
+
+        void Start()
         {
-            wasZooming = false;
+            resetCamera = cameraRef.transform.position;
         }
 
-        if (wasZooming)
+        void LateUpdate()
         {
-            return;
-        }
-
-        if (Input.touchCount > 1)
-        {
-            wasZooming = true;
-            return;
-        }
-        else if (GameManager.Instance.GameState == EGameState.Gameplay)
-        {
-            if (Input.GetMouseButton(0))
+            if (Input.touchCount == 0 && wasZooming)
             {
-                diference = (cameraRef.ScreenToWorldPoint(Input.mousePosition) - cameraRef.transform.position);
+                wasZooming = false;
+            }
 
-                if (!drag)
+            if (wasZooming)
+            {
+                return;
+            }
+
+            if (Input.touchCount > 1)
+            {
+                wasZooming = true;
+                return;
+            }
+            else if (GameManager.Instance.GameState == EGameState.Gameplay)
+            {
+                if (Input.GetMouseButton(0))
                 {
-                    drag = true;
-                    origin = cameraRef.ScreenToWorldPoint(Input.mousePosition);
-                }
-            }
-            else
-            {
-                drag = false;
-            }
+                    diference = (cameraRef.ScreenToWorldPoint(Input.mousePosition) - cameraRef.transform.position);
 
-            if (drag)
-            {
-                cameraRef.transform.position = origin - diference;
+                    if (!drag)
+                    {
+                        drag = true;
+                        origin = cameraRef.ScreenToWorldPoint(Input.mousePosition);
+                    }
+                }
+                else
+                {
+                    drag = false;
+                }
+
+                if (drag)
+                {
+                    cameraRef.transform.position = origin - diference;
+                }
             }
         }
     }

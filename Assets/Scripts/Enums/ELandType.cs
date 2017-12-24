@@ -1,6 +1,9 @@
-﻿public enum ELandType
+﻿namespace Hexwar
 {
-    Player,
-    Enemy,
-    Environment
+    public enum ELandType
+    {
+        Player,
+        Enemy,
+        Environment
+    }
 }

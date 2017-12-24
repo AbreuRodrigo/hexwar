@@ -1,9 +1,12 @@
-﻿public enum EGameState
+﻿namespace Hexwar
 {
-    Lobby,
-    WaitingToJoin,
-    Initializing,
-    Gameplay,
-    Pause,
-    GameOver
+    public enum EGameState
+    {
+        Lobby,
+        WaitingToJoin,
+        Initializing,
+        Gameplay,
+        Pause,
+        GameOver
+    }
 }

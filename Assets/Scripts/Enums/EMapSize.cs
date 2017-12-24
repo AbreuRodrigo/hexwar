@@ -1,7 +1,10 @@
-﻿public enum EMapSize
+﻿namespace Hexwar
 {
-    SMALL = 0,
-    MEDIUM = 1,
-    LARGE = 2,
-    GIANT = 3
+    public enum EMapSize
+    {
+        SMALL = 0,
+        MEDIUM = 1,
+        LARGE = 2,
+        GIANT = 3
+    }
 }

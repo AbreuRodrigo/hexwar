@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : Component
+namespace Hexwar
 {
-    public static T Instance { get; private set; }
-
-    public virtual void Awake()
+    public class Singleton<T> : MonoBehaviour where T : Component
     {
-        if (Instance == null)
+        public static T Instance { get; private set; }
+
+        public virtual void Awake()
         {
-            Instance = this as T;
-            DontDestroyOnLoad(this);
-        }
-        else
-        {
-            Destroy(gameObject);
+            if (Instance == null)
+            {
+                Instance = this as T;
+                DontDestroyOnLoad(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

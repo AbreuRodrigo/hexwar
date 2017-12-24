@@ -3,22 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SearchingIcon : MonoBehaviour
+namespace Hexwar
 {
-    public Image blockBakaground;
-    public Image icon;
- 
-    public void Show()
+    public class SearchingIcon : MonoBehaviour
     {
-        blockBakaground.gameObject.SetActive(true);
-        icon.enabled = true;
-        LeanTween.moveLocalY(gameObject, 45, 1).setLoopPingPong();
-        LeanTween.rotateZ(gameObject, 10, 1).setLoopPingPong();
-    }
+        public Image blockBakaground;
+        public Image icon;
 
-    public void Hide()
-    {
-        blockBakaground.gameObject.SetActive(false);
-        icon.enabled = false;
+        public void Show()
+        {
+            blockBakaground.gameObject.SetActive(true);
+            icon.enabled = true;
+            LeanTween.moveLocalY(gameObject, 45, 1).setLoopPingPong();
+            LeanTween.rotateZ(gameObject, 10, 1).setLoopPingPong();
+        }
+
+        public void Hide()
+        {
+            blockBakaground.gameObject.SetActive(false);
+            icon.enabled = false;
+        }
     }
 }

@@ -2,64 +2,67 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool
+namespace Hexwar
 {
-    public Stack<PoolableObject> availableObjects = new Stack<PoolableObject>();
-    public LinkedList<PoolableObject> usedObjects = new LinkedList<PoolableObject>();
-
-    private int initialPoolSize;
-    private PoolableObject poolableObject;
-    private Transform parent;
-
-    private PoolableObject objRef = null;
-
-    public ObjectPool(int initialPoolSize, PoolableObject poolableObject, Transform parent)
+    public class ObjectPool
     {
-        this.initialPoolSize = initialPoolSize;
-        this.poolableObject = poolableObject;
-        this.parent = parent;
-        
-        InitializePool();
-    }
+        public Stack<PoolableObject> availableObjects = new Stack<PoolableObject>();
+        public LinkedList<PoolableObject> usedObjects = new LinkedList<PoolableObject>();
 
-    private void InitializePool()
-    {
-        GameObject refObj = null;
-        PoolableObject poolableObj = null;
+        private int initialPoolSize;
+        private PoolableObject poolableObject;
+        private Transform parent;
 
-        for (int i = 0; i < initialPoolSize; i++)
+        private PoolableObject objRef = null;
+
+        public ObjectPool(int initialPoolSize, PoolableObject poolableObject, Transform parent)
         {
-            refObj = GameObject.Instantiate(poolableObject.gameObject);
-            refObj.transform.SetParent(parent);
-            refObj.SetActive(false);
+            this.initialPoolSize = initialPoolSize;
+            this.poolableObject = poolableObject;
+            this.parent = parent;
 
-            poolableObj = refObj.GetComponent<PoolableObject>();
-            poolableObj.idInPool = i;
-
-            availableObjects.Push(poolableObj);
-        }
-    }
-
-    public PoolableObject GetNextAvailable()
-    {
-        if(availableObjects != null && availableObjects.Count > 0)
-        {
-            objRef = availableObjects.Pop();
-            usedObjects.AddLast(objRef);
-
-            return objRef;
+            InitializePool();
         }
 
-        return null;
-    }
-
-    public void ReturnObjectToPool(PoolableObject poolableObject)
-    {
-        if(usedObjects != null && poolableObject != null)
+        private void InitializePool()
         {
-            usedObjects.Remove(poolableObject);
-            availableObjects.Push(poolableObject);
-            poolableObject.gameObject.SetActive(false);
+            GameObject refObj = null;
+            PoolableObject poolableObj = null;
+
+            for (int i = 0; i < initialPoolSize; i++)
+            {
+                refObj = GameObject.Instantiate(poolableObject.gameObject);
+                refObj.transform.SetParent(parent);
+                refObj.SetActive(false);
+
+                poolableObj = refObj.GetComponent<PoolableObject>();
+                poolableObj.idInPool = i;
+
+                availableObjects.Push(poolableObj);
+            }
+        }
+
+        public PoolableObject GetNextAvailable()
+        {
+            if (availableObjects != null && availableObjects.Count > 0)
+            {
+                objRef = availableObjects.Pop();
+                usedObjects.AddLast(objRef);
+
+                return objRef;
+            }
+
+            return null;
+        }
+
+        public void ReturnObjectToPool(PoolableObject poolableObject)
+        {
+            if (usedObjects != null && poolableObject != null)
+            {
+                usedObjects.Remove(poolableObject);
+                availableObjects.Push(poolableObject);
+                poolableObject.gameObject.SetActive(false);
+            }
         }
     }
 }

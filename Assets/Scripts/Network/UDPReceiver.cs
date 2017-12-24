@@ -13,111 +13,114 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO.Compression;
 using System.Runtime.Serialization;
 
-public class UDPReceiver
+namespace Hexwar
 {
-    private Thread listenThread = null;
-    private UdpClient udpClient;
-
-    private IPEndPoint localEP = null;
-    private IPEndPoint remoteEP = null;
-    private IAsyncResult currentAsyncResult = null;
-
-    public bool Initialized { get; set; }
-
-    private readonly object clientLock = new object();
-
-    public IPEndPoint LocalEndPoint { get { return localEP; } }
-
-    private class UdpState
+    public class UDPReceiver
     {
-        public IPEndPoint e;
-        public UdpClient c;
+        private Thread listenThread = null;
+        private UdpClient udpClient;
 
-        public UdpState(IPEndPoint e, UdpClient c)
+        private IPEndPoint localEP = null;
+        private IPEndPoint remoteEP = null;
+        private IAsyncResult currentAsyncResult = null;
+
+        public bool Initialized { get; set; }
+
+        private readonly object clientLock = new object();
+
+        public IPEndPoint LocalEndPoint { get { return localEP; } }
+
+        private class UdpState
         {
-            this.e = e;
-            this.c = c;
+            public IPEndPoint e;
+            public UdpClient c;
+
+            public UdpState(IPEndPoint e, UdpClient c)
+            {
+                this.e = e;
+                this.c = c;
+            }
         }
-    }
 
-    public UDPReceiver(IPEndPoint localEP, IPEndPoint remoteEP)
-    {
-        this.localEP = localEP;
-        this.remoteEP = remoteEP;
-        this.Initialized = false;
-
-        InitUdpClient();
-        Init();
-    }
-
-    public void StopReceiving()
-    {
-        listenThread.Abort();
-        udpClient.Close();
-    }
-
-    public void InitUdpClient()
-    {
-        if (udpClient != null)
+        public UDPReceiver(IPEndPoint localEP, IPEndPoint remoteEP)
         {
-            currentAsyncResult = null;
+            this.localEP = localEP;
+            this.remoteEP = remoteEP;
+            this.Initialized = false;
+
+            InitUdpClient();
+            Init();
+        }
+
+        public void StopReceiving()
+        {
+            listenThread.Abort();
             udpClient.Close();
         }
-        udpClient = new UdpClient();
-        udpClient.ExclusiveAddressUse = false;
-        udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-        udpClient.Client.Bind(localEP);
 
-        localEP = (IPEndPoint)udpClient.Client.LocalEndPoint;
-    }
-
-    public void Init()
-    {
-        if (!Initialized)
+        public void InitUdpClient()
         {
-            Initialized = true;
-            listenThread = new Thread(StartListening);
-            listenThread.Start();
-        }
-    }
-
-    private void StartListening()
-    {
-        lock (clientLock)
-        {
-            UdpState s = new UdpState(localEP, udpClient);
-            currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
-        }
-    }
-
-    private void ReceiveCallback(IAsyncResult ar)
-    {
-        if (ar == currentAsyncResult)
-        {
-            UdpClient c = (UdpClient)((UdpState)(ar.AsyncState)).c;
-            IPEndPoint e = (IPEndPoint)((UdpState)(ar.AsyncState)).e;
-
-            Response response = null;
-            Byte[] data = c.EndReceive(ar, ref e);
-
-            if (data.Length > 0)
+            if (udpClient != null)
             {
-                response = ObjectFromByteArray(data);
-                NetworkManager.Instance.ProcessResponse(response);
+                currentAsyncResult = null;
+                udpClient.Close();
             }
+            udpClient = new UdpClient();
+            udpClient.ExclusiveAddressUse = false;
+            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            udpClient.Client.Bind(localEP);
 
-            UdpState s = new UdpState(e, c);
-            currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
-
-            Debug.Log("Receiver ended successfully...");
+            localEP = (IPEndPoint)udpClient.Client.LocalEndPoint;
         }
-    }
 
-    private Response ObjectFromByteArray(byte[] data)
-    {
-        XmlSerializer serializer = new XmlSerializer(typeof(Response));
-        object raw = serializer.Deserialize(new MemoryStream(data));
+        public void Init()
+        {
+            if (!Initialized)
+            {
+                Initialized = true;
+                listenThread = new Thread(StartListening);
+                listenThread.Start();
+            }
+        }
 
-        return (Response)raw;
+        private void StartListening()
+        {
+            lock (clientLock)
+            {
+                UdpState s = new UdpState(localEP, udpClient);
+                currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+            }
+        }
+
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            if (ar == currentAsyncResult)
+            {
+                UdpClient c = (UdpClient)((UdpState)(ar.AsyncState)).c;
+                IPEndPoint e = (IPEndPoint)((UdpState)(ar.AsyncState)).e;
+
+                Response response = null;
+                Byte[] data = c.EndReceive(ar, ref e);
+
+                if (data.Length > 0)
+                {
+                    response = ObjectFromByteArray(data);
+                    NetworkManager.Instance.ProcessResponse(response);
+                }
+
+                UdpState s = new UdpState(e, c);
+                currentAsyncResult = udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+
+                Debug.Log("Receiver ended successfully...");
+            }
+        }
+
+        private Response ObjectFromByteArray(byte[] data)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Response));
+            object raw = serializer.Deserialize(new MemoryStream(data));
+
+            return (Response)raw;
+        }
     }
 }

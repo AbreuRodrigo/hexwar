@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class SpriteCategory
+namespace Hexwar
 {
-    public string categoryName;
-    public Sprite[] sprites;
-
-    public int TotalSprites
+    [System.Serializable]
+    public class SpriteCategory
     {
-        get { return sprites.Length; }
+        public string categoryName;
+        public Sprite[] sprites;
+
+        public int TotalSprites
+        {
+            get { return sprites.Length; }
+        }
     }
 }

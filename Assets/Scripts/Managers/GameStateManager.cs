@@ -2,32 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameStateManager : MonoBehaviour
+namespace Hexwar
 {
-    public EGameState gameState;
-
-    public void ChangeToInitializingState()
+    public class GameStateManager : MonoBehaviour
     {
-        gameState = EGameState.Initializing;
-    }
+        public EGameState gameState;
 
-    public void ChangeToGameplayState()
-    {
-        gameState = EGameState.Gameplay;
-    }
+        public void ChangeToInitializingState()
+        {
+            gameState = EGameState.Initializing;
+        }
 
-    public void ChangeToPauseState()
-    {
-        gameState = EGameState.Pause;
-    }
+        public void ChangeToGameplayState()
+        {
+            gameState = EGameState.Gameplay;
+        }
 
-    public void ChangeToGameOverState()
-    {
-        gameState = EGameState.GameOver;
-    }
+        public void ChangeToPauseState()
+        {
+            gameState = EGameState.Pause;
+        }
 
-    public void ChangeToLobbyState()
-    {
-        gameState = EGameState.Lobby;
+        public void ChangeToGameOverState()
+        {
+            gameState = EGameState.GameOver;
+        }
+
+        public void ChangeToLobbyState()
+        {
+            gameState = EGameState.Lobby;
+        }
     }
 }

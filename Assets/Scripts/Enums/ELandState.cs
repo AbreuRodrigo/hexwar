@@ -1,6 +1,9 @@
-﻿public enum ELandState
+﻿namespace Hexwar
 {
-    Fogged,
-    BorderFooged,
-    Visible
+    public enum ELandState
+    {
+        Fogged,
+        BorderFooged,
+        Visible
+    }
 }

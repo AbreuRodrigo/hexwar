@@ -1,6 +1,9 @@
-﻿[System.Serializable]
-public class PassTurnTemplatePayload
+﻿namespace Hexwar
 {
-    public short playerTurnIndex;
-    public string playerGameName;
+    [System.Serializable]
+    public class PassTurnTemplatePayload
+    {
+        public short playerTurnIndex;
+        public string playerGameName;
+    }
 }

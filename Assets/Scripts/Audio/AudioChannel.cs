@@ -1,0 +1,101 @@
+/*===============================================================
+Product:    Hexwar
+Developer:  Abreu
+Company:    TerraNix Studios - https://www.terranix.com
+Date:       23/12/2017 18:16
+================================================================*/
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace Hexwar
+{
+	public class AudioChannel : MonoBehaviour 
+	{
+        public int index = 0;
+        public bool active = false;
+        public bool playing = false;
+        public AudioSource audioSource;
+
+        private float progress;
+
+        [System.Serializable]
+        public class ChannelEvent : UnityEvent<AudioChannel> { }
+
+        private ChannelEvent observer = new ChannelEvent();
+                		
+		void Update () 
+		{
+			if(playing && !audioSource.loop)
+            {
+                progress = Mathf.Clamp01(audioSource.time / audioSource.clip.length);
+
+                if(progress >= 1)
+                {
+                    TurnOff();
+                }
+            }
+		}
+
+        public void TurnOn(int index, UnityAction<AudioChannel> listener)
+        {
+            if(observer != null)
+            {
+                active = true;
+
+                this.index = index;
+
+                observer.RemoveAllListeners();
+                observer.AddListener(listener);
+            }
+        }
+
+        private void TurnOff()
+        {
+            active = false;
+            playing = false;
+            audioSource.clip = null;
+            observer.Invoke(this);
+            gameObject.SetActive(false);
+        }
+
+        public void PlayOneShot(Audio audio)
+        {
+            if (active && !playing)
+            {
+                if (audio != null && audioSource != null)
+                {
+                    playing = true;
+
+                    gameObject.SetActive(true);
+
+                    audioSource.loop = false;
+                    audioSource.playOnAwake = false;
+                    audioSource.volume = audio.volume;
+                    audioSource.PlayOneShot(audio.audioFile);
+                }
+            }
+        }
+
+        public void PlayLoop(Audio audio)
+        {
+            if (active && !playing)
+            {
+                if (audio != null && audioSource != null)
+                {
+                    playing = true;
+
+                    gameObject.SetActive(true);
+
+                    audioSource.loop = true;
+                    audioSource.playOnAwake = true;
+                    audioSource.volume = audio.volume;
+                    audioSource.clip = audio.audioFile;
+                    audioSource.Play();
+                }
+            }
+        }
+    }
+}

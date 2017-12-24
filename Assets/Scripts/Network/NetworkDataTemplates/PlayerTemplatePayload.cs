@@ -1,9 +1,12 @@
-﻿[System.Serializable]
-public class PlayerTemplatePayload
+﻿namespace Hexwar
 {
-    public string playerName;
-    public long xp;
-    public int level;
-    public string clientId;
-    public short color;
+    [System.Serializable]
+    public class PlayerTemplatePayload
+    {
+        public string playerName;
+        public long xp;
+        public int level;
+        public string clientId;
+        public short color;
+    }
 }
