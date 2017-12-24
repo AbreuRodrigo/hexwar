@@ -82,6 +82,7 @@ namespace Hexwar
 
         public void SearchGame()
         {
+            AudioManager.Instance.PlayButtonClickFx();
             StartCoroutine(StartSearchingGameRoutine());
         }
 

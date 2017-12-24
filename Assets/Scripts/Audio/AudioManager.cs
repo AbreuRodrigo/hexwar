@@ -100,7 +100,9 @@ namespace Hexwar
         {
             if (audioChannelsAvailable != null && audioChannelsAvailable.Count > 0)
             {
-                return audioChannelsAvailable.Pop();
+                AudioChannel audioChannel = audioChannelsAvailable.Pop();
+                SetChannelInUse(audioChannel);
+                return audioChannel;
             }
 
             return null;
@@ -126,12 +128,16 @@ namespace Hexwar
             {
                 int index = channel.index;
 
-                AudioChannel ch = audioChannelsInUse[index];
-                ch.gameObject.SetActive(false);
+                AudioChannel ch = null;
 
-                audioChannelsInUse.Remove(index);
-
-                audioChannelsAvailable.Push(ch);
+                if (audioChannelsInUse.TryGetValue(index, out ch))
+                {
+                    if (ch != null)
+                    {
+                        audioChannelsInUse.Remove(index);
+                        audioChannelsAvailable.Push(ch);
+                    }
+                }
             }
         }
 

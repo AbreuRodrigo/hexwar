@@ -15,7 +15,7 @@ namespace Hexwar
     public class Audio
     {
         public EAudioName name;
-        public AudioClip audioFile;
+        public AudioClip audioClip;
         [Range(0, 1)]
         public float volume;
     }

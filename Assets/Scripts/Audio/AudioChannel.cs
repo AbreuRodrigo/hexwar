@@ -25,17 +25,20 @@ namespace Hexwar
         public class ChannelEvent : UnityEvent<AudioChannel> { }
 
         private ChannelEvent observer = new ChannelEvent();
+
+        private float timer = 0;
                 		
 		void Update () 
 		{
 			if(playing && !audioSource.loop)
             {
-                progress = Mathf.Clamp01(audioSource.time / audioSource.clip.length);
+                timer += Time.unscaledDeltaTime;
+                progress = Mathf.Clamp01(timer / audioSource.clip.length);
 
-                if(progress >= 1)
+                if (progress >= 1)
                 {
                     TurnOff();
-                }
+                }                
             }
 		}
 
@@ -46,6 +49,7 @@ namespace Hexwar
                 active = true;
 
                 this.index = index;
+                this.timer = 0;
 
                 observer.RemoveAllListeners();
                 observer.AddListener(listener);
@@ -71,10 +75,12 @@ namespace Hexwar
 
                     gameObject.SetActive(true);
 
+                    audioSource.clip = audio.audioClip;
+
                     audioSource.loop = false;
                     audioSource.playOnAwake = false;
                     audioSource.volume = audio.volume;
-                    audioSource.PlayOneShot(audio.audioFile);
+                    audioSource.PlayOneShot(audio.audioClip);
                 }
             }
         }
@@ -92,7 +98,7 @@ namespace Hexwar
                     audioSource.loop = true;
                     audioSource.playOnAwake = true;
                     audioSource.volume = audio.volume;
-                    audioSource.clip = audio.audioFile;
+                    audioSource.clip = audio.audioClip;
                     audioSource.Play();
                 }
             }
