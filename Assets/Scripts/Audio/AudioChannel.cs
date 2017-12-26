@@ -15,7 +15,6 @@ namespace Hexwar
 	public class AudioChannel : MonoBehaviour 
 	{
         public int index = 0;
-        public bool active = false;
         public bool playing = false;
         public AudioSource audioSource;
 
@@ -38,6 +37,7 @@ namespace Hexwar
                 if (progress >= 1)
                 {
                     TurnOff();
+                    timer = 0;
                 }                
             }
 		}
@@ -46,8 +46,6 @@ namespace Hexwar
         {
             if(observer != null)
             {
-                active = true;
-
                 this.index = index;
                 this.timer = 0;
 
@@ -58,16 +56,15 @@ namespace Hexwar
 
         private void TurnOff()
         {
-            active = false;
+            observer.Invoke(this);
             playing = false;
             audioSource.clip = null;
-            observer.Invoke(this);
             gameObject.SetActive(false);
         }
 
         public void PlayOneShot(Audio audio)
         {
-            if (active && !playing)
+            if (!playing)
             {
                 if (audio != null && audioSource != null)
                 {
@@ -76,31 +73,27 @@ namespace Hexwar
                     gameObject.SetActive(true);
 
                     audioSource.clip = audio.audioClip;
-
                     audioSource.loop = false;
                     audioSource.playOnAwake = false;
                     audioSource.volume = audio.volume;
-                    audioSource.PlayOneShot(audio.audioClip);
+                    audioSource.PlayOneShot(audio.audioClip, audio.volume);
                 }
             }
         }
 
         public void PlayLoop(Audio audio)
         {
-            if (active && !playing)
+            if (!playing && audio != null && audioSource != null)
             {
-                if (audio != null && audioSource != null)
-                {
-                    playing = true;
+                playing = true;
 
-                    gameObject.SetActive(true);
+                gameObject.SetActive(true);
 
-                    audioSource.loop = true;
-                    audioSource.playOnAwake = true;
-                    audioSource.volume = audio.volume;
-                    audioSource.clip = audio.audioClip;
-                    audioSource.Play();
-                }
+                audioSource.loop = true;
+                audioSource.playOnAwake = true;
+                audioSource.volume = audio.volume;
+                audioSource.clip = audio.audioClip;
+                audioSource.Play();
             }
         }
     }
