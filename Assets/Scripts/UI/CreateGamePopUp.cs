@@ -29,7 +29,7 @@ namespace Hexwar
 
         public string GetMapSize()
         {
-            return EMapSize.SMALL.ToString();
+            return EMapSize.GIANT.ToString();
         }
     }
 }

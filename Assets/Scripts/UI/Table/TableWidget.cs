@@ -33,7 +33,7 @@ namespace Hexwar
         public void AddRow(string gameName, EMapSize mapSize, int currentPlayers, int totalPlayers, bool createdByLocalPlayer)
         {
             gameTemplateRef.name = gameName;
-            gameTemplateRef.size = mapSize;
+            gameTemplateRef.size = EMapSize.GIANT;//mapSize;
             gameTemplateRef.currenPlayers = currentPlayers;
             gameTemplateRef.totalPlayers = totalPlayers;
             gameTemplateRef.createdByLocalPlayer = createdByLocalPlayer;
@@ -45,7 +45,7 @@ namespace Hexwar
         {
             GameTemplate gameTemplate = new GameTemplate();
             gameTemplate.name = gameName;
-            gameTemplate.size = mapSize;
+            gameTemplate.size = EMapSize.GIANT;//mapSize;
             gameTemplate.currenPlayers = currentPlayers;
             gameTemplate.totalPlayers = totalPlayers;
             gameTemplate.createdByLocalPlayer = createdByLocalPlayer;

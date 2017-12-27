@@ -144,7 +144,7 @@ namespace Hexwar
 
         public void SearchGame(int selectedOption)
         {
-            EMapSize selectedMapSize = (EMapSize)System.Enum.GetValues(typeof(EMapSize)).GetValue(selectedOption);
+            EMapSize selectedMapSize = EMapSize.GIANT;//(EMapSize)System.Enum.GetValues(typeof(EMapSize)).GetValue(selectedOption);
 
             SearchGamePayload searchPayload = new SearchGamePayload();
             searchPayload.cliendId = localPlayer.clientId;
@@ -263,7 +263,7 @@ namespace Hexwar
 
                 GameSetup.mapSeed = gameTemplatePayload.mapSeed;
                 GameSetup.currentGame = gameTemplatePayload.gameName;
-                GameSetup.mapSize = (EMapSize)Enum.Parse(typeof(EMapSize), gameTemplatePayload.mapSize, true);
+                GameSetup.mapSize = EMapSize.GIANT;//(EMapSize)Enum.Parse(typeof(EMapSize), gameTemplatePayload.mapSize, true);
 
                 tasks.Enqueue(WaitForOpponentsTask);
             }

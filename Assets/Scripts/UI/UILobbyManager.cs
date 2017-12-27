@@ -105,7 +105,7 @@ namespace Hexwar
         {
             if (gameTemplate != null)
             {
-                EMapSize mapSize = (EMapSize)System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize);
+                EMapSize mapSize = EMapSize.GIANT;//(EMapSize)System.Enum.Parse(typeof(EMapSize), gameTemplate.mapSize);
                 gameTable.EnqueueRowItem(gameTemplate.gameName, mapSize, gameTemplate.currentPlayers, gameTemplate.maxPlayers, true);
             }
         }

@@ -39,12 +39,12 @@ namespace Hexwar
             instance = this;
 
             gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
-        {
-            { EMapSize.SMALL, new MapStructure(250, 2) },
-            { EMapSize.MEDIUM, new MapStructure(500, 3) },
-            { EMapSize.LARGE, new MapStructure(750, 4) },
-            { EMapSize.GIANT, new MapStructure(1000, 4) }
-        };
+            {
+                { EMapSize.SMALL, new MapStructure(250, 2) },
+                { EMapSize.MEDIUM, new MapStructure(500, 2) },
+                { EMapSize.LARGE, new MapStructure(750, 2) },
+                { EMapSize.GIANT, new MapStructure(1000, 2) }
+            };
 
             if (groundSprites != null)
             {
