@@ -110,37 +110,44 @@ namespace Hexwar
 
         public void SetupPlayersInitialHexagon(Player player, bool isLocalPlayer)
         {
-            Hexagon playerHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, player.initialHexagon);
-
-            if (playerHexagon != null)
+            try
             {
-                playerHexagon.SetLandSprite(MapManager.Instance.plainSprite);
-                playerHexagon.ChangeColor(player.playerColor);
-                playerHexagon.troop = GameConfig.INITIAL_TROOP;
+                Hexagon playerHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, player.initialHexagon);
 
-                if (isLocalPlayer)
+                if (playerHexagon != null)
                 {
-                    playerHexagon.SetAsPlayer(player);
-                    playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
-                    playerHexagon.ChangeToVisibleState();
-                    playerHexagon.EnableNeighbours();
+                    playerHexagon.SetLandSprite(MapManager.Instance.plainSprite);
+                    playerHexagon.ChangeColor(player.playerColor);
+                    playerHexagon.troop = GameConfig.INITIAL_TROOP;
 
-                    Vector3 p = playerHexagon.gameObject.transform.position;
-                    p.z = Camera.main.transform.position.z;
-
-                    Camera.main.transform.position = p;
-                }
-                else
-                {
-                    if (GameSetup.Instance.showEnemies)
+                    if (isLocalPlayer)
                     {
+                        playerHexagon.SetAsPlayer(player);
+                        playerHexagon.gameObject.name = GameConfig.PLAYER_HEXAGON_NAME;
                         playerHexagon.ChangeToVisibleState();
                         playerHexagon.EnableNeighbours();
-                    }
 
-                    playerHexagon.SetAsEnemy(player);
-                    playerHexagon.gameObject.name = GameConfig.ENEMY_HEXAGON_NAME;
+                        Vector3 p = playerHexagon.gameObject.transform.position;
+                        p.z = Camera.main.transform.position.z;
+
+                        Camera.main.transform.position = p;
+                    }
+                    else
+                    {
+                        if (GameSetup.Instance.showEnemies)
+                        {
+                            playerHexagon.ChangeToVisibleState();
+                            playerHexagon.EnableNeighbours();
+                        }
+
+                        playerHexagon.SetAsEnemy(player);
+                        playerHexagon.gameObject.name = GameConfig.ENEMY_HEXAGON_NAME;
+                    }
                 }
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError(e.Message);
             }
         }
 
@@ -452,8 +459,15 @@ namespace Hexwar
 
         private void DoPhaseTransition()
         {
-            currentPhase = phaseOrder[currentPhase];
-            ProcessPhase();
+            try
+            {
+                currentPhase = phaseOrder[currentPhase];
+                ProcessPhase();
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError(e.Message);                
+            }
         }
 
         public void SkipTurn()

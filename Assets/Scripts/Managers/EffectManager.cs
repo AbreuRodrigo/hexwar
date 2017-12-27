@@ -15,16 +15,27 @@ namespace Hexwar
 	{
         private int brightStarsIndex = 0;
         private Dictionary<int, BrightStartFX> brightStarFXs = new Dictionary<int, BrightStartFX>();
-        private bool runningBrightStars = true;
+        private bool runningBrightStars = false;
         
         void Start()
         {
-            foreach(BrightStartFX fx in FindObjectsOfType<BrightStartFX>())
-            {
-                RegisterBrightStartFX(fx);
-            }
+            BrightStartFX[] fxs = FindObjectsOfType<BrightStartFX>();
 
-            StartCoroutine(InitializeBrightStarFXControl());
+            if (fxs != null)
+            {
+                runningBrightStars = true;
+
+                foreach (BrightStartFX fx in fxs)
+                {
+                    RegisterBrightStartFX(fx);
+                }
+
+                StartCoroutine(InitializeBrightStarFXControl());
+            }
+            else if(runningBrightStars)
+            {
+                runningBrightStars = false;
+            }
         }
 
         private void RegisterBrightStartFX(BrightStartFX brightStarFX)

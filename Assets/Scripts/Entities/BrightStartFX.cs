@@ -18,12 +18,18 @@ namespace Hexwar
 
         public void Play()
         {
-            LeanTween.scale(myRectTransform, Vector3.one, timer).setLoopPingPong(1).setOnComplete(ResetFX);
+            if (myRectTransform != null)
+            {
+                LeanTween.scale(myRectTransform, Vector3.one, timer).setLoopPingPong(1).setOnComplete(ResetFX);
+            }
         }
 
         private void ResetFX()
         {
-            myRectTransform.localScale = Vector3.zero;
+            if (myRectTransform != null)
+            {
+                myRectTransform.localScale = Vector3.zero;
+            }
         }
 	}
 }

@@ -40,10 +40,10 @@ namespace Hexwar
 
             gameMapDictionary = new Dictionary<EMapSize, MapStructure>()
             {
-                { EMapSize.SMALL, new MapStructure(250, 2) },
-                { EMapSize.MEDIUM, new MapStructure(500, 2) },
-                { EMapSize.LARGE, new MapStructure(750, 2) },
-                { EMapSize.GIANT, new MapStructure(1000, 2) }
+                { EMapSize.SMALL, new MapStructure(150, 2) },
+                { EMapSize.MEDIUM, new MapStructure(300, 2) },
+                { EMapSize.LARGE, new MapStructure(500, 2) },
+                { EMapSize.GIANT, new MapStructure(700, 2) }
             };
 
             if (groundSprites != null)
@@ -134,11 +134,23 @@ namespace Hexwar
 
         public Hexagon GetHexagonByMapSizeAndIndex(EMapSize size, int index)
         {
-            MapStructure map = gameMapDictionary[size];
-            int max = map.max;
-            int players = map.players;
+            Hexagon hexagon = null;
+            MapStructure map = null;
 
-            return mappedHexagons[index];
+            try
+            {
+                map = gameMapDictionary[size];
+                int max = map.max;
+                int players = map.players;
+
+                hexagon = mappedHexagons[index];
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError(e.Message + " - size: " + size + " index: " + index);
+            }
+
+            return hexagon;
         }
 
         public void RevealNeighbors(Hexagon refHexagon)

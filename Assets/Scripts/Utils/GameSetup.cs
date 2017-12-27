@@ -10,6 +10,7 @@ namespace Hexwar
         public bool showHexagonsId;
         public bool showEnemies;
         public bool noFogOfWar;
+        public bool drawLinesOnHexagons;
 
         public static long mapSeed = 1512341350967;
         public static short localPlayerTurnId;

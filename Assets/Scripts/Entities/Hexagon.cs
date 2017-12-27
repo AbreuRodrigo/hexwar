@@ -58,27 +58,35 @@ namespace Hexwar
             Vector3 dir = Vector3.zero;
             dir = new Vector3(x - s, y, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
 
             dir = new Vector3(x - w, y + h, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
 
             dir = new Vector3(x + w, y + h, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
 
             dir = new Vector3(x + s, origin.y, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
 
             dir = new Vector3(x + w, y - h, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
 
             dir = new Vector3(x - w, y - h, 0);
 
-            Debug.DrawLine(origin, dir, Color.green);
+            DrawLine(origin, dir, Color.green);
+        }
+
+        private void DrawLine(Vector3 origin, Vector3 dir, Color color)
+        {
+            if (GameSetup.Instance.drawLinesOnHexagons)
+            {
+                Debug.DrawLine(origin, dir, color);
+            }
         }
 
         public void ChangeColor(Color color)
