@@ -116,10 +116,10 @@ namespace Hexwar
 
                 if (playerHexagon != null)
                 {
-                    playerHexagon.SetLandSprite(MapManager.Instance.plainSprite);
+                    playerHexagon.SetLandSprite(MapManager.Instance.PlainSprite);
                     playerHexagon.ChangeColor(player.playerColor);
                     playerHexagon.troop = GameConfig.INITIAL_TROOP;
-
+                    
                     if (isLocalPlayer)
                     {
                         playerHexagon.SetAsPlayer(player);
@@ -127,7 +127,7 @@ namespace Hexwar
                         playerHexagon.ChangeToVisibleState();
                         playerHexagon.EnableNeighbours();
 
-                        Vector3 p = playerHexagon.gameObject.transform.position;
+                        Vector3 p = playerHexagon.transform.position;
                         p.z = Camera.main.transform.position.z;
 
                         Camera.main.transform.position = p;
@@ -436,7 +436,7 @@ namespace Hexwar
                 Hexagon targetHexagon = MapManager.Instance.GetHexagonByMapSizeAndIndex(GameSetup.mapSize, playerMovePayload.target);
 
                 targetHexagon.gameObject.name = GameConfig.ENEMY_HEXAGON_NAME;
-                targetHexagon.SetLandSprite(MapManager.Instance.plainSprite);
+                targetHexagon.SetLandSprite(MapManager.Instance.PlainSprite);
 
                 if (targetHexagon.isPlayer)
                 {
@@ -498,7 +498,7 @@ namespace Hexwar
             targetSelection.gameObject.SetActive(false);
             previewMove.gameObject.SetActive(false);
 
-            to.SetLandSprite(MapManager.Instance.plainSprite);
+            to.SetLandSprite(MapManager.Instance.PlainSprite);
 
             MapManager.Instance.RevealNeighbors(to);
 

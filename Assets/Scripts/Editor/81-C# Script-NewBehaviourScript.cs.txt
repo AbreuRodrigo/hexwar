@@ -1,0 +1,27 @@
+﻿/*===============================================================
+Product:    #PROJECTNAME#
+Developer:  #DEVELOPERNAME#
+Company:    #COMPANY#
+Date:       #CREATIONDATE#
+================================================================*/
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace #PROJECTNAME#
+{
+	public class #SCRIPTNAME# : MonoBehaviour 
+	{
+
+		// Use this for initialization
+		void Start () {
+			#NOTRIM#
+		}
+		
+		// Update is called once per frame
+		void Update () {
+			#NOTRIM#
+		}
+	}
+}

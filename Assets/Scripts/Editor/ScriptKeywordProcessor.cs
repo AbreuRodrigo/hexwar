@@ -5,10 +5,10 @@ using System;
 internal sealed class ScriptKeywordProcessor : UnityEditor.AssetModificationProcessor
 {
     // This script currently contains 4 keywords, feel free to add more
-    // #CREATIONDATE#
-    // #PROJECTSNAME#
+    // #PROJECTNAME#
     // #DEVELOPERNAME#
     // #COMPANY#
+    // #CREATIONDATE#
 
     private const string COMPANY = "TerraNix Studios";
     private const string WEBSITE = "https://www.terranix.com";

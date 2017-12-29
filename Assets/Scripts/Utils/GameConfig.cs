@@ -15,6 +15,8 @@ namespace Hexwar
         public const int BASE_TURN_TIMER = 30;
         public const int INITIAL_TROOP = 7;
 
+        public const float hexagonY = 0.96f;
+
         public static Color openEnvironmentColor = new Color(0.69f, 0.76f, 1f);
         public static Color openEnvironmentColorOnHover = new Color(0.45f, 0.55f, 1f);
         public static Color closedEnvironmentColor = new Color(0.69f, 0.76f, 1f);

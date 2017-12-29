@@ -28,6 +28,11 @@ namespace Hexwar
             {
                 landSpriteRenderer = GetComponent<SpriteRenderer>();
             }
+
+            if (hud != null)
+            {
+                hud.gameObject.SetActive(false);
+            }
         }
 
         void Start()
@@ -43,50 +48,51 @@ namespace Hexwar
             }
         }
 
+
         void Update()
         {
-            float x = transform.position.x;
-            float y = transform.position.y;
-            float h = 0.96f;
-            float w = 0.64f;
-            float s = 1.28f;
+            if (GameSetup.Instance.drawLinesOnHexagons)
+            {
+                float x = transform.position.x;
+                float y = transform.position.y;
+                float h = 0.96f;
+                float w = 0.64f;
+                float s = 1.28f;
 
-            Vector3 origin = transform.position;
-            origin.y += 0.64f;
-            y += 0.64f;
+                Vector3 origin = transform.position;
+                origin.y += 0.64f;
+                y += 0.64f;
 
-            Vector3 dir = Vector3.zero;
-            dir = new Vector3(x - s, y, 0);
+                Vector3 dir = Vector3.zero;
+                dir = new Vector3(x - s, y, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
 
-            dir = new Vector3(x - w, y + h, 0);
+                dir = new Vector3(x - w, y + h, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
 
-            dir = new Vector3(x + w, y + h, 0);
+                dir = new Vector3(x + w, y + h, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
 
-            dir = new Vector3(x + s, origin.y, 0);
+                dir = new Vector3(x + s, origin.y, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
 
-            dir = new Vector3(x + w, y - h, 0);
+                dir = new Vector3(x + w, y - h, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
 
-            dir = new Vector3(x - w, y - h, 0);
+                dir = new Vector3(x - w, y - h, 0);
 
-            DrawLine(origin, dir, Color.green);
+                DrawLine(origin, dir, Color.green);
+            }
         }
 
         private void DrawLine(Vector3 origin, Vector3 dir, Color color)
         {
-            if (GameSetup.Instance.drawLinesOnHexagons)
-            {
-                Debug.DrawLine(origin, dir, color);
-            }
+            Debug.DrawLine(origin, dir, color);
         }
 
         public void ChangeColor(Color color)
@@ -400,8 +406,11 @@ namespace Hexwar
                     landSpriteRenderer.sprite = MapManager.Instance.GetRandomLandSprite();
                 }
 
+                int y = (int)transform.position.y;
+                y++;
+                
                 landSpriteRenderer.enabled = true;
-                landSpriteRenderer.sortingOrder = ((int)transform.position.y - 30) * -1;
+                landSpriteRenderer.sortingOrder = (y - 30) * -1;
 
                 DeactivateFogSprite();
             }

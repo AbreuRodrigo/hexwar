@@ -13,7 +13,6 @@ namespace Hexwar
         }
 
         private Dictionary<int, Hexagon> mappedHexagons = new Dictionary<int, Hexagon>();
-        private int totalGroundSprites = 0;
 
         [Header("Components")]
         public MapGenerator mapGenerator;
@@ -22,15 +21,18 @@ namespace Hexwar
         public EMapSize mapSize;
 
         [Header("Sprites")]
-        public Sprite plainSprite;
         public Sprite fogSprite;
         public Sprite borderFogSprite;
-
-        [Header("Sprite Categories")]
-        public SpriteCategory[] groundSprites;
+        public Sprite PlainSprite
+        {
+            get
+            {
+                return LandManager.Instance.GetSmallVillage();
+            }
+        }
 
         private Hexagon hexRef = null;
-        private Hexagon neighborHexagonRef = null;
+        private Hexagon neighborHexagonRef = null;        
 
         private Dictionary<EMapSize, MapStructure> gameMapDictionary = null;
 
@@ -45,11 +47,6 @@ namespace Hexwar
                 { EMapSize.LARGE, new MapStructure(500, 2) },
                 { EMapSize.GIANT, new MapStructure(700, 2) }
             };
-
-            if (groundSprites != null)
-            {
-                totalGroundSprites = groundSprites.Length;
-            }
 
             if (mapGenerator != null)
             {
@@ -91,13 +88,7 @@ namespace Hexwar
 
         public Sprite GetRandomLandSprite()
         {
-            if (groundSprites != null)
-            {
-                SpriteCategory category = groundSprites[Random.Range(0, totalGroundSprites)];
-                return category.sprites[Random.Range(0, category.TotalSprites)];
-            }
-
-            return null;
+            return LandManager.Instance.GetPlains();
         }
 
         public Sprite GetFogSprite()
